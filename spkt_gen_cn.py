@@ -2,6 +2,31 @@ import numpy as np
 import json
 import os
 
+SCALE_FACTOR = 1 # scaling down to test PV values
+
+def rate_SAI():
+    t = [x for x in np.arange(0, 10001, 1)]
+
+    rate = []
+
+    for i, key in enumerate(t):
+        if i < len(t):
+            freq_SAI = (-1.45433609113392e-10 * key ** 3 + 1.340603396708e-6 * key ** 2 - 0.00378224210238498 * key + 4.52737468545426) * 8 * SCALE_FACTOR
+            rate.append(freq_SAI)
+
+    return rate, t
+
+def rate_SAII():
+    t = [x for x in np.arange(0, 10001, 1)]
+
+    rate = []
+
+    for i, key in enumerate(t):
+        if i < len(t):
+            freq_SAII = (-1.45433609113392e-10 * key ** 3 + 1.340603396708e-6 * key ** 2 - 0.00378224210238498 * key + 4.52737468545426) * 8 * SCALE_FACTOR
+            rate.append(freq_SAII)
+
+    return rate, t
 
 def poisson_generator(rate, t_start=0.0, t_stop=1000.0, seed=None):
     rng = np.random.RandomState(seed)
@@ -34,13 +59,48 @@ def poisson_generator(rate, t_start=0.0, t_stop=1000.0, seed=None):
         
     return spikes
 
-if __name__ == '__main__':
+def inh_poisson_generator(rate, t, t_stop, seed=None):
+    """
+    Returns a SpikeTrain whose spikes are a realization of an inhomogeneous
+    poisson process (dynamic rate). The implementation uses the thinning
+    method.
+    Inputs:
+    -------
+        rate   - an array of the rates (Hz) where rate[i] is active on interval
+                    [t[i],t[i+1]]
+        t      - an array specifying the time bins (in milliseconds) at which to
+                    specify the rate
+        t_stop - length of time to simulate process (in ms)
+    Note:
+    -----
+        t_start=t[0]
+    """
+    rng = np.random.RandomState(seed)
+    if np.shape(t) != np.shape(rate):
+        raise ValueError('shape mismatch: t,rate must be of the same shape')
+    # get max rate and generate poisson process to be thinned
+    rmax = np.max(rate)
+    ps = poisson_generator(rate=rmax, t_start=t[0], t_stop=t_stop, seed=None)
+    # return empty if no spikes
+    if len(ps) == 0:
+        np.array([])
+
+    # gen uniform rand on 0,1 for each spike
+    rn = np.array(rng.uniform(0, 1, len(ps)))
+    # instantaneous rate for each spike
+    idx = np.searchsorted(t, ps) - 1
+    spike_rate = np.array([rate[i] for i in idx])
+    # thin and return spikes
+    spike_train = ps[rn < spike_rate/rmax]
+    return list(spike_train)
+
+def generate_new_SPKT(num_cells, rate, tstart, tstop, seed):
     # --- generation parameters ---
-    NUM_CELLS = 4
-    RATE_HZ   = 10.0
-    T_START   = 0.0
-    T_STOP    = 5000.0   # ms, matches cfg.duration in cfg_mechanical.py
-    SEED_BASE = None        # set to None for non-reproducible runs
+    NUM_CELLS = num_cells
+    RATE_HZ   = rate
+    T_START   = tstart
+    T_STOP    = tstop  # ms, matches cfg.duration in cfg_mechanical.py
+    SEED_BASE = seed       # set to None for non-reproducible runs
  
     # each cell gets its own independent Poisson realization (different seed)
     spkt = []
@@ -53,7 +113,7 @@ if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.abspath(__file__))
     out_dir = os.path.join(script_dir, 'spkt')
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, 'spkt_10Hz_4cells.json')
+    out_path = os.path.join(out_dir, 'spkt.json')
  
     with open(out_path, 'w') as f:
         json.dump(spkt, f)

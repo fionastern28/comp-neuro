@@ -9,13 +9,30 @@ pauloaguiar@fc.up.pt ; mafsousa@ibmc.up.pt
 ENDCOMMENT
 
 
+: ===========================================================================
+: EDITED by Claude (Cowork) on 2026-08-07 21:31 EDT (revised 21:52 EDT)
+: PURPOSE: Added POINTER iacc so this synapse can push its own current into
+: the shared ExcCap accumulator (iacc_nmda) each timestep, replacing the old
+: scheme where ExcCap pulled from a fixed 20-slot array of pointers. See
+: SynCurrentCap.mod for the accumulator side of this change.
+: REVISION NOTE: the push (iacc = iacc + i) originally lived inside
+: BREAKPOINT, but testing showed NEURON evaluates BREAKPOINT twice per
+: timestep for mechanisms with a NONSPECIFIC_CURRENT and no declared
+: analytic conductance (once at v, once at a perturbed v, to build the
+: implicit integration Jacobian) -- which silently double-counted every
+: push. Moved to AFTER SOLVE, which NEURON guarantees runs exactly once
+: per accepted timestep, after v is finalized, using the same 'i' that's
+: normally trusted for recording/plotting synaptic current traces.
+: ===========================================================================
+
 NEURON {
 	POINT_PROCESS NMDA_DynSyn
-	USEION ca WRITE ica	
+	USEION ca WRITE ica
 	USEION mg READ mgo VALENCE 2
 	RANGE tau_rise, tau_decay
 	RANGE U1, tau_rec, tau_fac
 	RANGE i, g, e, mg, inon, ica, ca_ratio
+	POINTER iacc
 	NONSPECIFIC_CURRENT inon
     }
     
@@ -45,6 +62,7 @@ ASSIGNED {
 	factor	(1)
 	ica		(nA)
 	inon	(nA)
+	iacc	(nA)  : ExcCap's iacc_nmda accumulator, wired via h.setpointer (added 2026-08-07)
 }
 
 STATE {
@@ -68,6 +86,12 @@ BREAKPOINT {
 	ica = ca_ratio*i
 	inon = (1-ca_ratio)*i
 	:printf("\nt=%f\tinon=%f\tica=%f\ti=%f\tmgb=%f",t, inon, ica, i, mgblock(v))
+}
+
+: runs exactly once per accepted timestep (see revision note above) -- safe
+: place to push into the shared accumulator without double-counting
+AFTER SOLVE {
+	iacc = iacc + i
 }
 
 DERIVATIVE state{
