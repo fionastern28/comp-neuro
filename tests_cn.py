@@ -25,8 +25,8 @@ from spkt_gen_cn import generate_new_SPKT
 import importlib
 
 
-nRuns = 20
-SIM_DURATION = 5000  # ms
+nRuns = 10
+SIM_DURATION = 12000  # ms
 SIM_DURATION_sec = SIM_DURATION / 1000.0
 INPUT_RATE = 10
 
@@ -40,7 +40,7 @@ for run in range(nRuns):
     cfg = cfgmod.cfg
 
     cfg.inputRate = float(INPUT_RATE)
-    cfg.spktSeed = run * 230
+    cfg.spktSeed = run * 2316
     cfg.duration = SIM_DURATION
     cfg.simLabel = f"Circuit_Trial_run{run}"
 

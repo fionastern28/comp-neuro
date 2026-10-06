@@ -10,3 +10,10 @@ __pycache__/
 
 arm64/
 arm64/
+
+# Simulation output
+data/
+Helper Scripts & misc. (must remove from folder to use)/FRHcode/data/
+
+# Generated plots
+*.png

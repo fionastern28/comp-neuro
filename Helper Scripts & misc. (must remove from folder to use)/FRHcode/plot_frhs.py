@@ -61,7 +61,14 @@ Examples
 
         python3 plot_frhs.py --no-baseline --data data/Circuit_Trial_Medlock_run0_data.json --autoscale
 
-        python3 plot_frhs.py --no-baseline --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock --groups AB PKC C,TRPV1 --autoscale --out medlock_vs_cn_frh.png
+        python3 plot_frhs.py --no-baseline --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock --groups AB PKC C,TRPV1 --autoscale --out prezzy.png
+
+    python3 plot_frhs.py --no-baseline \
+        --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
+        --trials2 data/Circuit_Trial_run*_data.json --trials2-label cn \
+        --autoscale --out medlock_vs_cn_frh.png
+
+
 
 '''
 
@@ -79,7 +86,7 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 5.0     # s, simulated duration (EndTime in FiringRateHist.m)
+END_TIME = 12.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
 KWID     = 100.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
@@ -97,8 +104,19 @@ COMPARE_STYLES = ['--', '-.', ':', (0, (5, 1, 1, 1, 1, 1)), (0, (7, 2))]
 # for maximum visual contrast between exactly a couple of overlaid mean+/-SD
 # bands (COMPARE_STYLES above is tuned for --data run cycling and its first
 # two patterns, dashed vs dash-dot, look too similar to each other at a glance).
-TRIALS_STYLES = ['--', ':', '-.', (0, (3, 1, 1, 1))]
+#OLD TRIALS_STYLES = ['--', ':', '-.', (0, (3, 1, 1, 1))]
+
+#OLD AGAIN trial styles
+#TRIALS_STYLES  = ['-', '-', '-', '-']
+#TRIALS_HATCHES = [None, '//', '\\\\', 'xx']
+
+TRIALS_STYLES  = ['-', '--', '-.', (0, (3, 1, 1, 1))]
 TRIALS_HATCHES = [None, '//', '\\\\', 'xx']
+#OLD TRIALS_HATCHES = [None, '//', '\\\\', 'xx']
+
+# How much darker the --trials2 condition is drawn than --trials
+# (0 = same colour, 1 = black). 0.45 keeps the hue recognisable.
+TRIALS2_SHADE = 0.45
 
 # Declaration order in netParams_mechanical.py. Used ONLY to index the colormap
 # rows -- never to infer gids.
@@ -548,6 +566,12 @@ def main():
         idx = POP_ORDER.index(COLOR_ALIAS.get(key, key))
         return cellcmap[idx % len(cellcmap)]
 
+# NEW FOR SHADE
+    def shade(colour, amount):
+        '''Darken an RGB(A) colour toward black. amount=0 -> unchanged,
+        amount=1 -> black. Keeps hue so group identity stays readable.'''
+        return np.clip(np.asarray(colour[:3], float) * (1.0 - amount), 0, 1)
+
     # ---- layout: keep only panels that have traces ------------------------
     if args.single_panel:
         used_subs = [0]
@@ -650,6 +674,7 @@ def main():
                       % (trials2_label, name, n_cells, np.mean(mean_rates),
                          mean_trace.max()))
 
+                """ commented out for new grpahing plan
                 tt = trial_runs2[0]['t'][:min_len]
                 xmax = max(xmax, tt[-1])
                 axes[ax_i].fill_between(tt, mean_trace - std_trace,
@@ -658,6 +683,17 @@ def main():
                                         hatch=trials2_hatch,
                                         alpha=0.22, lw=0, zorder=2)
                 axes[ax_i].plot(tt, mean_trace, color=colour, lw=1.8,
+                                ls=trials2_style, label='_nolegend_')
+                """
+                tt = trial_runs2[0]['t'][:min_len]
+                xmax = max(xmax, tt[-1])
+                colour2 = shade(colour, TRIALS2_SHADE)
+                axes[ax_i].fill_between(tt, mean_trace - std_trace,
+                                        mean_trace + std_trace,
+                                        facecolor=colour2, edgecolor=colour2,
+                                        hatch=trials2_hatch,
+                                        alpha=0.22, lw=0, zorder=2)
+                axes[ax_i].plot(tt, mean_trace, color=colour2, lw=1.8,
                                 ls=trials2_style, label='_nolegend_')
     print()
 
@@ -687,12 +723,23 @@ def main():
     if n_style_entries > 1:
         run_handles = [Line2D([], [], color='0.25', lw=1.5, ls=r['style'],
                               label=r['label']) for r in runs]
+        """ FOR NEW PLOTTING
         if trial_runs:
             run_handles.append(Line2D([], [], color='0.25', lw=1.5,
                                       ls=trials_style, label=trials_label))
         if trial_runs2:
             run_handles.append(Line2D([], [], color='0.25', lw=1.5,
                                       ls=trials2_style, label=trials2_label))
+        """
+        if trial_runs:
+            run_handles.append(Line2D([], [], color='0.6', lw=2.0,
+                                      ls=trials_style, label=trials_label))
+        if trial_runs2:
+            run_handles.append(Line2D([], [],
+                                      color=shade((0.6, 0.6, 0.6), TRIALS2_SHADE),
+                                      lw=2.0, ls=trials2_style,
+                                      label=trials2_label))
+            
         fig.legend(handles=run_handles, loc='upper center',
                    ncol=min(n_style_entries, 4), frameon=False, fontsize=9)
         top = 0.88

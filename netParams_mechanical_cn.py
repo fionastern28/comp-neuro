@@ -5,7 +5,7 @@ Network Parameters script
 from netpyne import specs
 from neuron import h
 import cells_cn
-from spkt_gen_cn import poisson_generator, rate_SAI, rate_SAII, inh_poisson_generator
+from spkt_gen_cn import make_volley_pop, poisson_generator, rate_SAI, rate_SAII, inh_poisson_generator
 import json
 import sys
 # not sure wht this does
@@ -17,16 +17,23 @@ netParams = specs.NetParams()
 PROB = 1 # probability of connection between ab fibers and other
 PROB_AB = 1
 MEDLOCK_INPUT = False
-NUM_AB = 20 # number of ab fibers to use in the model
+NUM_AB = 4 # number of ab fibers to use in the model
 RATE_INCREASE = False # if true, use the 1.5x rate increase for medlock input
 
 # for pain inhibition
 NUM_C_FIBERS = 10
 NUM_AB_PULSE = 4
-AB_FIBER_RATE = 30
-C_FIBER_RATE = 10
+AB_FIBER_RATE = 20
+C_FIBER_RATE = 1
 A_START = 2000
-A_END = 2030
+A_END = 2050
+
+C_START_1 = 1000
+C_END_1 = 1050
+C_START_2 = 2000
+C_END_2 = 2050
+C_START_3 = 3000
+C_END_3 = 3050
 
  
 # ---------------------------------------------------------------------------
@@ -42,6 +49,14 @@ _ab_mode = getattr(cfg, 'abInputMode', 'physiological')
 
 # Primary Afferent info - RETURN TO THIS WHEN DONE WITH FRH FIGURE
 #with open('spkt/spkt.json', 'rb') as spkt_Ab: spkt_Ab = json.load(spkt_Ab)
+
+def make_poisson_pop(rate, n_cells, t_start, t_stop, seed_base):
+        trains = []
+        for i in range(n_cells):
+            seed = None if seed_base is None else seed_base + i
+            trains.append(poisson_generator(rate=rate, t_start=t_start, t_stop=t_stop,
+                                             seed=seed).tolist())
+        return trains
 
 if MEDLOCK_INPUT:
     if _nAb != 20:
@@ -59,14 +74,6 @@ elif _ab_mode == 'poisson':
     # Homogeneous Poisson drive, rate-controlled by cfg.inputRate -- used by
     # poisson_sweep.py (and tests_cn.py) to build F-I curves. Each fiber gets
     # an independent realisation (seed = spktSeed + fiber index).
-    def make_poisson_pop(rate, n_cells, t_stop, seed_base):
-        trains = []
-        for i in range(n_cells):
-            seed = None if seed_base is None else seed_base + i
-            trains.append(poisson_generator(rate=rate, t_start=0, t_stop=t_stop,
-                                             seed=seed).tolist())
-        return trains
-
     spkt_Ab = make_poisson_pop(_rate, _nAb, cfg.duration, _seed)
 else:
     rate_sai_vals,  t_sai  = rate_SAI()
@@ -89,6 +96,20 @@ else:
 
     spkt_Ab = spkt_SAI + spkt_SAII  # combine SAI and SAII draws into one Ab population
 
+# below used for testing different values of Ab input to make synapse strength
+
+spkt_Ab_testing_30 = make_poisson_pop(rate=25, n_cells=_nAb, t_start=0, t_stop=2000, seed_base=_seed*30)
+spkt_Ab_testing_20 = make_poisson_pop(rate=20, n_cells=_nAb, t_start=2000, t_stop=4000, seed_base=_seed*20)
+spkt_Ab_testing_10 = make_poisson_pop(rate=15, n_cells=_nAb, t_start=4000, t_stop=6000, seed_base=_seed*10)
+spkt_Ab_testing_5 = make_poisson_pop(rate=10, n_cells=_nAb, t_start=6000, t_stop=8000, seed_base=_seed*5)
+spkt_Ab_testing_2 = make_poisson_pop(rate=5, n_cells=_nAb, t_start=8000, t_stop=10000, seed_base=_seed*2)
+spkt_Ab_testing_1 = make_poisson_pop(rate=2, n_cells=_nAb, t_start=10000, t_stop=12000, seed_base=_seed*2)
+
+
+blocks = [spkt_Ab_testing_30, spkt_Ab_testing_20, spkt_Ab_testing_10,
+          spkt_Ab_testing_5, spkt_Ab_testing_2, spkt_Ab_testing_1]
+spkt_Ab_staircase = [sum(trains, []) for trains in zip(*blocks)]
+
 # moves dictionary from independent script into netParams
 netParams.cellParams['EXdelayedRule'] = cells_cn.EXdelayedRule
 netParams.cellParams['EXdelayedRule']['secs']['soma'].setdefault('pointps', {})
@@ -107,16 +128,22 @@ spkt_C = []
 for i in range(NUM_C_FIBERS):
    spkt_C.append(poisson_generator(C_FIBER_RATE, t_start = 0, t_stop=cfg.duration, seed=None).tolist())  # 10 Hz, 1000 ms, seed = i
 
+spkt_C_pulse = []
+spkt_C_pulse = make_volley_pop(n_cells=NUM_C_FIBERS, freq_hz=C_FIBER_RATE, n_stim=5, jitter_ms=1.0, seed=None)
 
-spkt_Ab_pulse = []
+spkt_Ab_pulse_PV = []
+spkt_Ab_pulse_PKC = []
 for i in range(NUM_AB_PULSE):
-    spkt_Ab_pulse.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
-netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse}
+    spkt_Ab_pulse_PV.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
+    spkt_Ab_pulse_PKC.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
+#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
+#netParams.popParams['Ab_PKC'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
 
-#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab}
-netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
+netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase}
+#netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
+#netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
 netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
-netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
+#netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
 
 
 netParams.defaultThreshold = -30
