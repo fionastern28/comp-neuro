@@ -26,7 +26,7 @@ import importlib
 
 
 nRuns = 10
-SIM_DURATION = 12000  # ms
+SIM_DURATION = 4000  # ms
 SIM_DURATION_sec = SIM_DURATION / 1000.0
 INPUT_RATE = 10
 

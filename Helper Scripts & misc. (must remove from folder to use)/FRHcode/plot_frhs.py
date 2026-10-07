@@ -86,7 +86,7 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 12.0     # s, simulated duration (EndTime in FiringRateHist.m)
+END_TIME = 4.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
 KWID     = 100.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 

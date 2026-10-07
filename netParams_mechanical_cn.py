@@ -23,17 +23,11 @@ RATE_INCREASE = False # if true, use the 1.5x rate increase for medlock input
 # for pain inhibition
 NUM_C_FIBERS = 10
 NUM_AB_PULSE = 4
-AB_FIBER_RATE = 20
-C_FIBER_RATE = 1
+AB_FIBER_RATE = 30
+C_FIBER_RATE = 10
 A_START = 2000
-A_END = 2050
+A_END = 2030
 
-C_START_1 = 1000
-C_END_1 = 1050
-C_START_2 = 2000
-C_END_2 = 2050
-C_START_3 = 3000
-C_END_3 = 3050
 
  
 # ---------------------------------------------------------------------------
@@ -136,14 +130,14 @@ spkt_Ab_pulse_PKC = []
 for i in range(NUM_AB_PULSE):
     spkt_Ab_pulse_PV.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
     spkt_Ab_pulse_PKC.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
-#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
+netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
 #netParams.popParams['Ab_PKC'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
 
-netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase}
-#netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
+#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase}
+netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
 netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
-#netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
+netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
 
 
 netParams.defaultThreshold = -30

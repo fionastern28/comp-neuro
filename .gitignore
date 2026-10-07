@@ -16,4 +16,4 @@ data/
 Helper Scripts & misc. (must remove from folder to use)/FRHcode/data/
 
 # Generated plots
-*.png
+*.png*.json

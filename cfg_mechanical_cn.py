@@ -9,7 +9,7 @@ cfg = specs.SimConfig()
 
 cfg.hParams = {'celsius': 36, 'v_init': -60}
 cfg.vrest = cfg.hParams['v_init']
-cfg.duration = 12000
+cfg.duration = 4000
 
 cfg.recordStep = 0.025#25#0.025
 cfg.dt = 0.025
@@ -25,9 +25,9 @@ cfg.abInputMode = 'physiological'  # 'physiological' = SAI/SAII rate curves (def
                                     # 'poisson' = homogeneous rate-controlled drive (set by poisson_sweep.py)
  
 
-EX_SCALE = 0.23 #0.23       #  Ab -> Ex synaptic weights
-IN_SCALE = 0.35        #  Ab -> IN synaptic weights
-PV_PKC_SCALE = 0.018 #0.024  #  PV -> PKC synaptic weights
+EX_SCALE = 0.17 #0.23       #  Ab -> Ex synaptic weights
+IN_SCALE = 0.4        #  Ab -> IN synaptic weights
+PV_PKC_SCALE = 0.016 #0.024  #  PV -> PKC synaptic weights
 
 SYN_CAP_EX = 0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 SYN_CAP_IN = 0.037      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
