@@ -9,7 +9,7 @@ cfg = specs.SimConfig()
 
 cfg.hParams = {'celsius': 36, 'v_init': -60}
 cfg.vrest = cfg.hParams['v_init']
-cfg.duration = 4000
+cfg.duration = 6000
 
 cfg.recordStep = 0.025#25#0.025
 cfg.dt = 0.025
@@ -25,7 +25,7 @@ cfg.abInputMode = 'physiological'  # 'physiological' = SAI/SAII rate curves (def
                                     # 'poisson' = homogeneous rate-controlled drive (set by poisson_sweep.py)
  
 
-EX_SCALE = 0.17 #0.23       #  Ab -> Ex synaptic weights
+EX_SCALE = 0.195 #0.23       #  Ab -> Ex synaptic weights
 IN_SCALE = 0.4        #  Ab -> IN synaptic weights
 PV_PKC_SCALE = 0.016 #0.024  #  PV -> PKC synaptic weights
 
@@ -68,9 +68,9 @@ cfg.saveDataInclude = ['simData', 'simConfig', 'netParams', 'net']
 
 # Analysis and Plotting 
 cells = [x for x in range(0, 11, 1)]
-cfg.analysis['plotRaster'] = {'include': ['all'], 'timeRange': [0, cfg.duration],'orderInverse': True, 'saveFig': True, 'showFig': True} 
+#cfg.analysis['plotRaster'] = {'include': ['all'], 'timeRange': [0, cfg.duration],'orderInverse': True, 'saveFig': True, 'showFig': True} 
 #cfg.analysis['plotConn'] = {'includePre': ['all'], 'includePost': ['all'], 'feature': 'weight','logPlot': True, 'saveFig': True, 'showFig': True}
 # cfg.analysis['plotSpikeHist'] = {'include': ['eachPop'], 'timeRange': [0,cfg.duration], 'spikeHistBin': 5, 'saveFig': True, 'showFig': False}
 #cfg.analysis['plotSpikeStats'] = {'include': ['eachPop'], 'timeRange': [0,cfg.duration], 'saveFig': True, 'showFig': False}
-cfg.analysis['plotTraces'] = {'include': [11], 'timeRange': [0, cfg.duration], 'saveFig': True, 'showFig': False}
+#cfg.analysis['plotTraces'] = {'include': [11], 'timeRange': [0, cfg.duration], 'saveFig': True, 'showFig': False}
 #cfg.analysis['plot2Dnet'] = True 

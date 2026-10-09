@@ -68,6 +68,14 @@ Examples
         --trials2 data/Circuit_Trial_run*_data.json --trials2-label cn \
         --autoscale --out medlock_vs_cn_frh.png
 
+    UPDATE 10/8/26 FOR SUMMING OF AFFERENT FIBERS AND FRACTION FOR MEDLOCK AFFERENTS
+    
+    python3 plot_frhs.py --no-baseline \
+    --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
+    --trials-fraction 0.2 \
+    --trials2 data/Circuit_Trial_run*_data.json --trials2-label cn \
+    --autoscale --out medlock_vs_cn_frh.png
+
 
 
 '''
@@ -86,7 +94,7 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 4.0     # s, simulated duration (EndTime in FiringRateHist.m)
+END_TIME = 6.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
 KWID     = 100.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
@@ -157,6 +165,11 @@ SUBPLOT_YTICK  = [[0, 25, 50], [0, 50, 100, 150], [0, 25, 50, 75], [0, 25, 50]]
 # pops (above) aren't all present. E.g. some sim configs never split Ab into
 # SAI/SAII and just save a single 'Ab' population.
 GROUP_ALT_POPS = {'AB': ['Ab']}
+
+# Groups whose spikes are summed across all cells into one combined spike
+# train (as a downstream synapse would receive them), smoothed once, and
+# reported as the TOTAL rate rather than the per-cell average.
+SUMMED_GROUPS = {'AB', 'C,TRPV1'}
 
 
 def resolve_pops(name, pops, have):
@@ -298,19 +311,32 @@ def kernel_psth(psth, g):
     trimmed = full[half - 1: len(full) - half + 1]
     return trimmed[:len(psth)]
 
+    '''Return (trace, n_cells, mean_rate) for one group of populations.
 
-def compute_trace(spkt, spkid, gids, t, g, end_time=END_TIME):
+    summed=False: binarized PSTH, scaled to the mean per-cell rate
+                  (original Medlock pipeline).
+    summed=True : every spike from every cell counted (coincident spikes
+                  kept), smoothed once, scaled to the TOTAL rate of all
+                  cells combined.
+    '''
+def compute_trace(spkt, spkid, gids, t, g, end_time=END_TIME, summed=False, fraction=1.0):
     '''Return (trace, n_cells, mean_rate) for one group of populations.'''
     times = spkt[np.isin(spkid, gids)]
-
     counts, _ = np.histogram(np.sort(times), bins=t)
-    psth = (counts > 0).astype(float)          # PSTH_.m binarisation
+    
+    if summed:
+        psth = counts.astype(float)                # keep every spike
+    else:
+        psth = (counts > 0).astype(float)          # PSTH_.m binarisation
 
     k = kernel_psth(psth, g)
     k[np.isnan(k)] = 0.0
 
     n_cells = len(gids)
-    fr_neuron = psth.sum() / end_time / n_cells   # spk/s per neuron
+    denom = 1 if summed else n_cells
+    fr_neuron = psth.sum() / end_time / denom   # spk/s per neuron
+    if summed:
+        fr_neuron *= fraction
     mk = k.mean()
     scale = fr_neuron / mk if (mk != 0.0 and np.isfinite(mk)) else 0.0
     if not np.isfinite(scale):
@@ -343,6 +369,17 @@ def main():
     ap.add_argument('--trials2-label', default=None,
                     help='legend label for the second trial-average line '
                          '(default: "trial avg 2 (n=N)")')
+
+    for flag, what in [('--baseline-fraction', 'the baseline'),
+                       ('--data-fraction',     'every --data file'),
+                       ('--trials-fraction',   'the --trials files'),
+                       ('--trials2-fraction',  'the --trials2 files')]:
+        ap.add_argument(flag, type=float, default=1.0,
+                        help='multiply summed groups (%s) by this for %s, '
+                             'e.g. 0.2 for a 20%% connection probability '
+                             '(default 1.0 = full total)'
+                             % (', '.join(sorted(SUMMED_GROUPS)), what))
+    
     ap.add_argument('--baseline', default=BASELINE,
                     help='reference run, always plotted solid (default: %s)'
                          % BASELINE)
@@ -387,7 +424,7 @@ def main():
         plan.append((args.baseline,
                      args.baseline_label
                      or '%s (baseline)' % run_label(args.baseline),
-                     BASELINE_STYLE))
+                     BASELINE_STYLE, args.baseline_fraction))
 
     for i, path in enumerate(args.data):
         if not args.no_baseline and \
@@ -396,8 +433,7 @@ def main():
             continue
         plan.append((path,
                      args.labels[i] if args.labels else run_label(path),
-                     COMPARE_STYLES[i % len(COMPARE_STYLES)]))
-
+                     COMPARE_STYLES[i % len(COMPARE_STYLES)], args.data_fraction))
     if not plan and not args.trials and not args.trials2:
         print('ERROR: no runs to plot -- pass files to --data, --trials, '
               'or --trials2', file=sys.stderr)
@@ -405,7 +441,7 @@ def main():
 
     # ---- load every run ---------------------------------------------------
     runs = []
-    for path, label, style in plan:
+    for path, label, style, frac in plan:
         try:
             spkt, spkid, t, gid_map, labels = load_sim(path)
         except RuntimeError as err:
@@ -432,6 +468,7 @@ def main():
             'gids':  gid_map,
             'have':  have,
             'style': style,
+            'frac':  frac,
         })
 
     # ---- load every trial file (repeated trials of ONE condition) ---------
@@ -605,7 +642,7 @@ def main():
                 continue
             gids = np.concatenate([r['gids'][p] for p in use_pops])
             trace, n_cells, mean_rate = compute_trace(
-                r['spkt'], r['spkid'], gids, r['t'], g, args.end_time)
+                r['spkt'], r['spkid'], gids, r['t'], g, args.end_time, summed=(name in SUMMED_GROUPS), fraction=r['frac'])
             print('%-14s %-9s %5d %12.3f %12.3f'
                   % (r['label'], name, n_cells, mean_rate, trace.max()))
 
@@ -625,7 +662,7 @@ def main():
                     continue
                 gids = np.concatenate([tr['gids'][p] for p in use_pops])
                 trace, n_cells, mean_rate = compute_trace(
-                    tr['spkt'], tr['spkid'], gids, tr['t'], g, args.end_time)
+                    tr['spkt'], tr['spkid'], gids, tr['t'], g, args.end_time, summed=(name in SUMMED_GROUPS),  fraction=args.trials_fraction)
                 traces.append(trace)
                 mean_rates.append(mean_rate)
 
@@ -660,7 +697,7 @@ def main():
                     continue
                 gids = np.concatenate([tr['gids'][p] for p in use_pops])
                 trace, n_cells, mean_rate = compute_trace(
-                    tr['spkt'], tr['spkid'], gids, tr['t'], g, args.end_time)
+                    tr['spkt'], tr['spkid'], gids, tr['t'], g, args.end_time, summed=(name in SUMMED_GROUPS),  fraction=args.trials2_fraction)
                 traces.append(trace)
                 mean_rates.append(mean_rate)
 
