@@ -94,7 +94,7 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 6.0     # s, simulated duration (EndTime in FiringRateHist.m)
+END_TIME = 2.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
 KWID     = 100.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
@@ -322,6 +322,7 @@ def kernel_psth(psth, g):
 def compute_trace(spkt, spkid, gids, t, g, end_time=END_TIME, summed=False, fraction=1.0):
     '''Return (trace, n_cells, mean_rate) for one group of populations.'''
     times = spkt[np.isin(spkid, gids)]
+
     counts, _ = np.histogram(np.sort(times), bins=t)
     
     if summed:
@@ -376,7 +377,7 @@ def main():
                        ('--trials2-fraction',  'the --trials2 files')]:
         ap.add_argument(flag, type=float, default=1.0,
                         help='multiply summed groups (%s) by this for %s, '
-                             'e.g. 0.2 for a 20%% connection probability '
+                             'e.g. 0.2 for a 20 percent connection probability '
                              '(default 1.0 = full total)'
                              % (', '.join(sorted(SUMMED_GROUPS)), what))
     

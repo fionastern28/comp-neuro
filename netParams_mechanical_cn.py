@@ -26,7 +26,7 @@ NUM_AB_PULSE = 4
 AB_FIBER_RATE = 30
 C_FIBER_RATE = 10
 A_START = 2000
-A_END = 2030
+A_END = 2050
 
 
  
@@ -92,17 +92,31 @@ else:
 
 # below used for testing different values of Ab input to make synapse strength
 
-spkt_Ab_testing_30 = make_poisson_pop(rate=1, n_cells=_nAb, t_start=0, t_stop=1000, seed_base=_seed*30)
-spkt_Ab_testing_20 = make_poisson_pop(rate=2, n_cells=_nAb, t_start=1000, t_stop=2000, seed_base=_seed*20)
-spkt_Ab_testing_10 = make_poisson_pop(rate=4, n_cells=_nAb, t_start=2000, t_stop=3000, seed_base=_seed*10)
-spkt_Ab_testing_5 = make_poisson_pop(rate=6, n_cells=_nAb, t_start=3000, t_stop=4000, seed_base=_seed*5)
-spkt_Ab_testing_2 = make_poisson_pop(rate=8, n_cells=_nAb, t_start=4000, t_stop=5000, seed_base=_seed*2)
-spkt_Ab_testing_1 = make_poisson_pop(rate=10, n_cells=_nAb, t_start=5000, t_stop=6000, seed_base=_seed*2)
+spkt_Ab_testing_30 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1000, t_stop=1030, seed_base=_seed*30)
+spkt_Ab_testing_20 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1050, t_stop=1080, seed_base=_seed*20)
+spkt_Ab_testing_10 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1100, t_stop=1130, seed_base=_seed*10)
+spkt_Ab_testing_5 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1150, t_stop=1180, seed_base=_seed*5)
+spkt_Ab_testing_2 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1200, t_stop=1230, seed_base=_seed*2)
+spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1250, t_stop=1280, seed_base=_seed*2)
+spkt_Ab_testing_0 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1300, t_stop=1330, seed_base=_seed*5)
 
 
-blocks = [spkt_Ab_testing_1, spkt_Ab_testing_2, spkt_Ab_testing_5,
+blocks = [spkt_Ab_testing_0, spkt_Ab_testing_1, spkt_Ab_testing_2, spkt_Ab_testing_5,
           spkt_Ab_testing_10, spkt_Ab_testing_20, spkt_Ab_testing_30]
 spkt_Ab_staircase = [sum(trains, []) for trains in zip(*blocks)]
+
+spkt_Ab_testing_30 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1000, t_stop=1030, seed_base=_seed*3)
+spkt_Ab_testing_20 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1050, t_stop=1080, seed_base=_seed*2)
+spkt_Ab_testing_10 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1100, t_stop=1130, seed_base=_seed*1)
+spkt_Ab_testing_5 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1150, t_stop=1180, seed_base=_seed*50)
+spkt_Ab_testing_2 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1200, t_stop=1230, seed_base=_seed*20)
+spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1250, t_stop=1280, seed_base=_seed*5)
+spkt_Ab_testing_0 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1300, t_stop=1330, seed_base=_seed*5)
+
+
+blocks = [spkt_Ab_testing_0, spkt_Ab_testing_1, spkt_Ab_testing_2, spkt_Ab_testing_5,
+          spkt_Ab_testing_10, spkt_Ab_testing_20, spkt_Ab_testing_30]
+spkt_Ab_staircase_PV = [sum(trains, []) for trains in zip(*blocks)]
 
 # moves dictionary from independent script into netParams
 netParams.cellParams['EXdelayedRule'] = cells_cn.EXdelayedRule
@@ -130,16 +144,17 @@ spkt_Ab_pulse_PKC = []
 for i in range(NUM_AB_PULSE):
     spkt_Ab_pulse_PV.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
     spkt_Ab_pulse_PKC.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
-#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
-#netParams.popParams['Ab_PKC'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
+#netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
+#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
 
 netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase}
-#netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
+netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase_PV}
+netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
 netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
 netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
 
-
+6
 netParams.defaultThreshold = -30
 
 netParams.synMechParams['AMPA'] = {'mod': 'AMPA_DynSyn'   , 'tau_rise': 0.1, 'tau_decay': 5            }
@@ -150,7 +165,7 @@ netParams.synMechParams['GLY']  = {'mod': 'Glycine_DynSyn', 'tau_rise': 0.1, 'ta
 
 netParams.connParams['Ab_AMPA->PV'] = {
     'oneSynPerNetcon': True,
-    'preConds': {'popLabel': 'Ab'},
+    'preConds': {'popLabel': 'Ab_PV'},
     'postConds': {'popLabel': 'PV'},
     'weight': cfg.Ab_IN_AMPA,
     'sec': 'soma',
@@ -161,7 +176,7 @@ netParams.connParams['Ab_AMPA->PV'] = {
 
 netParams.connParams['Ab_NMDA->PV'] = {
     'oneSynPerNetcon': True,
-    'preConds': {'popLabel': 'Ab'},
+    'preConds': {'popLabel': 'Ab_PV'},
     'postConds': {'popLabel': 'PV'},
     'weight': cfg.Ab_IN_NMDA,
     'sec': 'soma',
