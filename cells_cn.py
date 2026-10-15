@@ -39,7 +39,7 @@ INcellRule  = {
                              'B_Na': {'gnabar': 0.6, 'alpha_shift': 0.0, 'beta_shift': 0.0},  #*.3
                              'KDR': {'gkbar': 0.0},
                              'KDRI': {'gkbar': .1}, #.15
-                             'pas': {'g': 0.00065, 'e': -70.0}}, # 0.0006
+                             'pas': {'g': 0.0008, 'e': -70.0}}, # 0.00065
                     }
                    }}
 

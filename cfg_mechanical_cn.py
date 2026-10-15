@@ -67,10 +67,10 @@ cfg.saveDataInclude = ['simData', 'simConfig', 'netParams', 'net']
 
 
 # Analysis and Plotting 
-cells = [x for x in range(0, 11, 1)]
-#cfg.analysis['plotRaster'] = {'include': ['all'], 'timeRange': [0, cfg.duration],'orderInverse': True, 'saveFig': True, 'showFig': True} 
+cells = [x for x in range(0, 25, 1)]
+cfg.analysis['plotRaster'] = {'include': ['all'], 'timeRange': [0, cfg.duration],'orderInverse': True, 'saveFig': True, 'showFig': True} 
 #cfg.analysis['plotConn'] = {'includePre': ['all'], 'includePost': ['all'], 'feature': 'weight','logPlot': True, 'saveFig': True, 'showFig': True}
 # cfg.analysis['plotSpikeHist'] = {'include': ['eachPop'], 'timeRange': [0,cfg.duration], 'spikeHistBin': 5, 'saveFig': True, 'showFig': False}
 #cfg.analysis['plotSpikeStats'] = {'include': ['eachPop'], 'timeRange': [0,cfg.duration], 'saveFig': True, 'showFig': False}
-#cfg.analysis['plotTraces'] = {'include': [11], 'timeRange': [0, cfg.duration], 'saveFig': True, 'showFig': False}
+cfg.analysis['plotTraces'] = {'include': [18], 'timeRange': [0, cfg.duration], 'saveFig': True, 'showFig': False}
 #cfg.analysis['plot2Dnet'] = True 

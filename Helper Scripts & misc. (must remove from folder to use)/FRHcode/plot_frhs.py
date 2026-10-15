@@ -96,7 +96,7 @@ from matplotlib.lines import Line2D
 
 END_TIME = 2.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
-KWID     = 100.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
+KWID     = 10.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
 # Default reference run, plotted unless --no-baseline is given. Override with
 # --baseline if the file lives somewhere else.

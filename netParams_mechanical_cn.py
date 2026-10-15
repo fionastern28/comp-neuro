@@ -25,8 +25,8 @@ NUM_C_FIBERS = 10
 NUM_AB_PULSE = 4
 AB_FIBER_RATE = 30
 C_FIBER_RATE = 10
-A_START = 2000
-A_END = 2050
+A_START = 1000
+A_END = 1050
 
 
  
@@ -144,11 +144,19 @@ spkt_Ab_pulse_PKC = []
 for i in range(NUM_AB_PULSE):
     spkt_Ab_pulse_PV.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
     spkt_Ab_pulse_PKC.append(poisson_generator(rate=AB_FIBER_RATE, t_start=A_START, t_stop=A_END, seed=None).tolist())
-#netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
-#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
 
-netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase}
-netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase_PV}
+spkt_Ab_30 = make_poisson_pop(rate=AB_FIBER_RATE, n_cells=_nAb, t_start=1000, t_stop=1050, seed_base=1)
+
+netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_30}#spkt_Ab_pulse_PV}
+netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_30}#spkt_Ab_pulse_PKC}
+
+
+#spkt_Ab_30 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=A_START, t_stop=A_END, seed_base=_seed*30)
+#spkt_Ab_30_PV = make_poisson_pop(rate=30, n_cells=_nAb, t_start=A_START, t_stop=A_END, seed_base=_seed*417)
+
+
+#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_30}
+#netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_30_PV}
 netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
 netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
