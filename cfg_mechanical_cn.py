@@ -30,7 +30,7 @@ IN_SCALE = 0.4        #  Ab -> IN synaptic weights
 PV_PKC_SCALE = 0.03 #0.024  #  PV -> PKC synaptic weights
 
 SYN_CAP_EX = 0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
-SYN_CAP_IN = 0.037      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
+SYN_CAP_IN = 0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 
 # SYNAPTIC WEIGHT
 

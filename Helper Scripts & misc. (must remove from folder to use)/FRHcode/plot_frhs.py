@@ -71,9 +71,9 @@ Examples
     UPDATE 10/8/26 FOR SUMMING OF AFFERENT FIBERS AND FRACTION FOR MEDLOCK AFFERENTS
     
     python3 plot_frhs.py --no-baseline \
-    --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
+    --trials /Users/fstern/Desktop/medlock-comparison-model/data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
     --trials-fraction 0.2 \
-    --trials2 data/Circuit_Trial_run*_data.json --trials2-label cn \
+    --trials2 /Users/fstern/Desktop/comp-neuro/data/Circuit_Trial_run*_data.json --trials2-label cn \
     --autoscale --out medlock_vs_cn_frh.png
 
 
