@@ -68,7 +68,7 @@ elif _ab_mode == 'poisson':
     # Homogeneous Poisson drive, rate-controlled by cfg.inputRate -- used by
     # poisson_sweep.py (and tests_cn.py) to build F-I curves. Each fiber gets
     # an independent realisation (seed = spktSeed + fiber index).
-    spkt_Ab = make_poisson_pop(_rate, _nAb, cfg.duration, _seed)
+    spkt_Ab = make_poisson_pop(_rate, _nAb, 0, cfg.duration, _seed)
 else:
     rate_sai_vals,  t_sai  = rate_SAI()
     rate_saii_vals, t_saii = rate_SAII()
@@ -147,6 +147,8 @@ netParams.cellParams['INcellRule']['secs']['soma']['pointps']['ExcCap'] = {
     'mod': 'ExcCap',
     'cap': cfg.excCapIN
 }
+cells_cn.PROcellRule['conds'] = {'cellType': 'PRO'}
+netParams.cellParams['NK1Rule'] = cells_cn.PROcellRule
 
 spkt_C = []
 for i in range(NUM_C_FIBERS):
@@ -163,8 +165,8 @@ for i in range(NUM_AB_PULSE):
 
 spkt_Ab_30 = make_poisson_pop(rate=AB_FIBER_RATE, n_cells=_nAb, t_start=1000, t_stop=1050, seed_base=1)
 
-netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
-netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
+#netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
+#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
 
 
 #spkt_Ab_30 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=A_START, t_stop=A_END, seed_base=_seed*30)
@@ -175,17 +177,19 @@ netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes
 #netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase_PV}
 netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
-netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
-netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
+#netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
+#netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
+netParams.popParams['NK1'] = {'cellType': 'PRO', 'numCells': 1} # NK1+ neurons (projection)
 
-6
+
 netParams.defaultThreshold = -30
 
 netParams.synMechParams['AMPA'] = {'mod': 'AMPA_DynSyn'   , 'tau_rise': 0.1, 'tau_decay': 5            }
 netParams.synMechParams['NMDA'] = {'mod': 'NMDA_DynSyn'   , 'tau_rise': 2  , 'tau_decay': 100          }
 netParams.synMechParams['GABA'] = {'mod': 'GABAa_DynSyn'  , 'tau_rise': 0.1, 'tau_decay': 20, 'e': -70 }
 netParams.synMechParams['GLY']  = {'mod': 'Glycine_DynSyn', 'tau_rise': 0.1, 'tau_decay': 10, 'e': -70 }
-
+netParams.synMechParams['NK13'] = {'mod': 'NK1_DynSyn'    , 'tau_rise': 100, 'tau_decay': 1000         }
+netParams.synMechParams['NK23'] = {'mod': 'NK1_DynSyn'    , 'tau_rise': 200, 'tau_decay': 3000         }
 
 netParams.connParams['Ab_AMPA->PV'] = {
     'oneSynPerNetcon': True,
@@ -278,3 +282,37 @@ netParams.connParams['C_PEP_NMDA->PKC'] = {
     'delay': 10.0,
     'loc': 0.5,
     'synMech': 'NMDA'}
+
+
+netParams.connParams['C_PEP_AMPA->NK1'] = {
+    'oneSynPerNetcon': True,
+    'preConds': {'popLabel': 'C_PEP'}, 
+    'postConds': {'popLabel': 'NK1'},  
+    'weight': cfg.C_NK1_AMPA,
+    'probability': 0.2,
+    'sec': 'soma',
+    'delay': 10.0,
+    'loc': 0.5,
+    'synMech': 'AMPA'}
+
+netParams.connParams['C_PEP_NMDA->NK1'] = {
+    'oneSynPerNetcon': True,
+    'preConds': {'popLabel': 'C_PEP'}, 
+    'postConds': {'popLabel': 'NK1'},  
+    'weight': cfg.C_NK1_NMDA,
+    'probability': 0.2,
+    'sec': 'soma',
+    'delay': 10.0,
+    'loc': 0.5,
+    'synMech': 'NMDA'}
+
+netParams.connParams['C_PEP_NK1->NK1'] = {
+    'oneSynPerNetcon': True,
+    'preConds': {'popLabel': 'C_PEP'}, 
+    'postConds': {'popLabel': 'NK1'},  
+    'weight': cfg.C_NK1_NK1,
+    'probability': 0.2,
+    'sec': 'soma',
+    'delay': 10.0,
+    'loc': 0.5,
+    'synMech': 'NK13'}

@@ -21,7 +21,7 @@ cfg.dt = 0.025
 cfg.inputRate = 10.0    # Hz, mean rate of EACH Ab afferent
 cfg.numAb     = 4      # number of independent Ab afferents
 cfg.spktSeed  = 1703    # base RNG seed (cell i uses spktSeed + i); None = random
-cfg.abInputMode = 'physiological'  # 'physiological' = SAI/SAII rate curves (default, normal runs);
+cfg.abInputMode = 'poisson'  # 'physiological' = SAI/SAII rate curves (default, normal runs);
                                     # 'poisson' = homogeneous rate-controlled drive (set by poisson_sweep.py)
  
 
@@ -45,6 +45,10 @@ cfg.Ab_IN_NMDA = 0.0098189  * IN_SCALE       # 0.0098189  * .5 = 0.00490945
 
 cfg.PV_GABA = 0.29416 * PV_PKC_SCALE # 0.29416 * 0.024 = 0.00705984
 cfg.PV_GLY =  0.011521 * PV_PKC_SCALE  # 0.011521 * 0.024 = 0.000276504  
+
+cfg.C_NK1_AMPA = 0.00009 
+cfg.C_NK1_NMDA = 8.7447e-05 
+cfg.C_NK1_NK1 = 3.2414e-08 
 
 cfg.recordTraces['v_soma'] = {'sec': 'soma', 'loc': 0.5, 'var': 'v'}
 

@@ -43,7 +43,7 @@ INcellRule  = {
                     }
                    }}
 
-PROcellRuleNEW = {
+PROcellRule = {
  'conds': {},
  'globals': {},
  'secLists': {},

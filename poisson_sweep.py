@@ -41,11 +41,11 @@ from neuron import h
 MODEL_LABEL       = '1-compartment'                 # legend text; must be unique
 NETPARAMS_MODULE  = 'netParams_mechanical_cn'    # module basename, no .py
 CFG_MODULE        = 'cfg_mechanical_cn'          # module basename, no .py
-TARGET_POP        = 'PKC'                     # population to measure
+TARGET_POP        = 'PV'                     # population to measure
 
 # keep these IDENTICAL across the models you intend to compare
-INPUT_RATES = [1, 3, 5, 7, 9, 12, 15, 20, 25, 30, 35, 40, 45, 50]#, 55, 60, 65, 70]  # Hz per afferent
-SEEDS       = [1056, 3008, 5200, 601, 7231, 853, 6000]  # RNG seeds for Poisson trains
+INPUT_RATES = [1, 3, 5, 7, 9, 12, 15, 20]#, 25, 30, 35, 40, 45, 50]#, 55, 60, 65, 70]  # Hz per afferent
+SEEDS       = [1056, 3008, 5200, 601]  # RNG seeds for Poisson trains
 DURATION    = 2000.0    # ms per run
 TRANSIENT   = 500.0     # ms discarded at the start of each run
 
@@ -105,10 +105,22 @@ def run_one(input_rate, seed):
     npmod = importlib.import_module(NETPARAMS_MODULE)
     importlib.reload(npmod)
 
+    npmod = importlib.import_module(NETPARAMS_MODULE)
+    importlib.reload(npmod)
+
+    # Sweep network = Ab_PV -> PV only, regardless of which pops are
+    # currently enabled in netParams. spkt_Ab is built from cfg.inputRate.
+    netParams = npmod.netParams
+    for pop in list(netParams.popParams.keys()):
+        del netParams.popParams[pop]
+    netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': cfg.numAb,
+                                    'spkTimes': npmod.spkt_Ab}
+    netParams.popParams['PV']    = {'cellType': 'IN', 'numCells': 1}
+
     # replaced sim.createSimulate(netParams=npmod.netParams, simConfig=cfg)
     #POSSIBLY TEMPORARY CHANGES TO IMPOSE SYNAPTIC LIMIT ON PV CELLS
 
-    sim.create(netParams=npmod.netParams, simConfig=cfg)
+    sim.create(netParams=netParams, simConfig=cfg)
 
 
     # --- wire ExcCap pointers on PV/VGLUT3/PKC cells ---
