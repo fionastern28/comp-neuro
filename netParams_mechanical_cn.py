@@ -98,8 +98,11 @@ spkt_Ab_testing_20 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1050, t_sto
 spkt_Ab_testing_10 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1100, t_stop=1130, seed_base=_seed*10)
 spkt_Ab_testing_5 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1150, t_stop=1180, seed_base=_seed*5)
 spkt_Ab_testing_2 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1200, t_stop=1230, seed_base=_seed*2)
-spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1250, t_stop=1280, seed_base=_seed*2)
-spkt_Ab_testing_0 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1300, t_stop=1330, seed_base=_seed*5)
+spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1250, t_stop=1280, seed_base=_seed*6)
+#spkt_Ab_testing_0 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=3000, t_stop=3050, seed_base=_seed*1047)
+spkt_Ab_testing_a = make_poisson_pop(rate=30, n_cells=_nAb, t_start=4000, t_stop=4030, seed_base=_seed*29)
+spkt_Ab_testing_b = make_poisson_pop(rate=30, n_cells=_nAb, t_start=5000, t_stop=5020, seed_base=_seed*517)
+spkt_Ab_testing_c = make_poisson_pop(rate=30, n_cells=_nAb, t_start=6000, t_stop=6010, seed_base=_seed*413)
 '''
 
 spkt_Ab_testing_30 = make_poisson_pop(rate=5, n_cells=_nAb, t_start=0, t_stop=1000, seed_base=_seed*1000)
@@ -109,8 +112,10 @@ spkt_Ab_testing_5 = make_poisson_pop(rate=20, n_cells=_nAb, t_start=3000, t_stop
 spkt_Ab_testing_2 = make_poisson_pop(rate=25, n_cells=_nAb, t_start=4000, t_stop=5000, seed_base=_seed*55)
 spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=5000, t_stop=6000, seed_base=_seed*17)
 
+
 blocks = [spkt_Ab_testing_1, spkt_Ab_testing_2, spkt_Ab_testing_5,
-          spkt_Ab_testing_10, spkt_Ab_testing_20, spkt_Ab_testing_30]
+          spkt_Ab_testing_10, spkt_Ab_testing_20, spkt_Ab_testing_30,
+          spkt_Ab_testing_a, spkt_Ab_testing_b, spkt_Ab_testing_c]
 spkt_Ab_staircase = [sum(trains, []) for trains in zip(*blocks)]
 
 '''
@@ -120,7 +125,10 @@ spkt_Ab_testing_10 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1100, t_sto
 spkt_Ab_testing_5 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1150, t_stop=1180, seed_base=_seed*50)
 spkt_Ab_testing_2 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1200, t_stop=1230, seed_base=_seed*20)
 spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1250, t_stop=1280, seed_base=_seed*5)
-spkt_Ab_testing_0 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=1300, t_stop=1330, seed_base=_seed*5)
+#spkt_Ab_testing_0 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=3000, t_stop=3050, seed_base=_seed*1047)
+spkt_Ab_testing_a = make_poisson_pop(rate=30, n_cells=_nAb, t_start=4000, t_stop=4030, seed_base=_seed*29)
+spkt_Ab_testing_b = make_poisson_pop(rate=30, n_cells=_nAb, t_start=5000, t_stop=5020, seed_base=_seed*517)
+spkt_Ab_testing_c = make_poisson_pop(rate=30, n_cells=_nAb, t_start=6000, t_stop=6010, seed_base=_seed*413)
 '''
 
 spkt_Ab_testing_30 = make_poisson_pop(rate=5, n_cells=_nAb, t_start=0, t_stop=1000, seed_base=_seed*30)
@@ -130,8 +138,10 @@ spkt_Ab_testing_5 = make_poisson_pop(rate=20, n_cells=_nAb, t_start=3000, t_stop
 spkt_Ab_testing_2 = make_poisson_pop(rate=25, n_cells=_nAb, t_start=4000, t_stop=5000, seed_base=_seed*2)
 spkt_Ab_testing_1 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=5000, t_stop=6000, seed_base=_seed*2)
 
+
 blocks = [spkt_Ab_testing_1, spkt_Ab_testing_2, spkt_Ab_testing_5,
-          spkt_Ab_testing_10, spkt_Ab_testing_20, spkt_Ab_testing_30]
+          spkt_Ab_testing_10, spkt_Ab_testing_20, spkt_Ab_testing_30,
+          spkt_Ab_testing_a, spkt_Ab_testing_b, spkt_Ab_testing_c]
 spkt_Ab_staircase_PV = [sum(trains, []) for trains in zip(*blocks)]
 
 # moves dictionary from independent script into netParams
@@ -165,8 +175,8 @@ for i in range(NUM_AB_PULSE):
 
 spkt_Ab_30 = make_poisson_pop(rate=AB_FIBER_RATE, n_cells=_nAb, t_start=1000, t_stop=1050, seed_base=1)
 
-netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
-netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
+#netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PV}
+#netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_pulse_PKC}
 
 
 #spkt_Ab_30 = make_poisson_pop(rate=30, n_cells=_nAb, t_start=A_START, t_stop=A_END, seed_base=_seed*30)
@@ -177,8 +187,8 @@ netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes
 netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_staircase_PV}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
-netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
-netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
+#netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
+#netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
 #netParams.popParams['NK1'] = {'cellType': 'PRO', 'numCells': 1} # NK1+ neurons (projection)
 #netParams.popParams['DYN'] = {'cellType': 'IN', 'numCells': 1} # Central/DYN+ neurons (inhibitory)
 

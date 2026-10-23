@@ -27,7 +27,7 @@ cfg.abInputMode = 'physiological'  # 'physiological' = SAI/SAII rate curves (def
 
 EX_SCALE = 0.195 #0.23       #  Ab -> Ex synaptic weights
 IN_SCALE = 0.6        #  Ab -> IN synaptic weights
-PV_PKC_SCALE = 0.02#0.024 #0.03  #  PV -> PKC synaptic weights
+PV_PKC_SCALE = 0.022#0.024 #0.03  #  PV -> PKC synaptic weights
 
 SYN_CAP_EX = 0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 SYN_CAP_IN = 0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
