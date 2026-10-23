@@ -25,8 +25,8 @@ from spkt_gen_cn import generate_new_SPKT
 import importlib
 
 
-nRuns = 1
-SIM_DURATION = 2000  # ms
+nRuns = 20
+SIM_DURATION = 6000  # ms
 SIM_DURATION_sec = SIM_DURATION / 1000.0
 INPUT_RATE = 10
 
@@ -62,7 +62,7 @@ for run in range(nRuns):
     # no zero-padding of unused slots, and no assert needed -- just one
     # setpointer call per synapse, pointing it at ExcCap's iacc_ampa/iacc_nmda.
     for cell in sim.net.cells:
-        if cell.tags.get('pop') not in ('PV', 'VGLUT3', 'PKC'):
+        if cell.tags.get('pop') not in ('PV', 'VGLUT3', 'PKC', 'DYN'):
             continue
 
         excCap = cell.secs['soma']['pointps']['ExcCap']['hObj']

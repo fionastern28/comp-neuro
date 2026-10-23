@@ -9,7 +9,7 @@ cfg = specs.SimConfig()
 
 cfg.hParams = {'celsius': 36, 'v_init': -60}
 cfg.vrest = cfg.hParams['v_init']
-cfg.duration = 2000
+cfg.duration = 6000
 
 cfg.recordStep = 0.025#25#0.025
 cfg.dt = 0.025
@@ -21,13 +21,13 @@ cfg.dt = 0.025
 cfg.inputRate = 10.0    # Hz, mean rate of EACH Ab afferent
 cfg.numAb     = 4      # number of independent Ab afferents
 cfg.spktSeed  = 1703    # base RNG seed (cell i uses spktSeed + i); None = random
-cfg.abInputMode = 'poisson'  # 'physiological' = SAI/SAII rate curves (default, normal runs);
+cfg.abInputMode = 'physiological'  # 'physiological' = SAI/SAII rate curves (default, normal runs);
                                     # 'poisson' = homogeneous rate-controlled drive (set by poisson_sweep.py)
  
 
 EX_SCALE = 0.195 #0.23       #  Ab -> Ex synaptic weights
-IN_SCALE = 0.4        #  Ab -> IN synaptic weights
-PV_PKC_SCALE = 0.03 #0.024  #  PV -> PKC synaptic weights
+IN_SCALE = 0.6        #  Ab -> IN synaptic weights
+PV_PKC_SCALE = 0.02#0.024 #0.03  #  PV -> PKC synaptic weights
 
 SYN_CAP_EX = 0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 SYN_CAP_IN = 0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells

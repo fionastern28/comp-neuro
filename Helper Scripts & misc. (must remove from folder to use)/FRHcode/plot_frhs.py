@@ -70,12 +70,19 @@ Examples
 
     UPDATE 10/8/26 FOR SUMMING OF AFFERENT FIBERS AND FRACTION FOR MEDLOCK AFFERENTS
     
+    # USE THIS ONE LAB COMPUTER
     python3 plot_frhs.py --no-baseline \
     --trials /Users/fstern/Desktop/medlock-comparison-model/data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
     --trials-fraction 0.2 \
     --trials2 /Users/fstern/Desktop/comp-neuro/data/Circuit_Trial_run*_data.json --trials2-label cn \
     --autoscale --out medlock_vs_cn_frh.png
 
+    #USE THIS ON LAPTOP
+   python3 plot_frhs.py --no-baseline \
+    --trials /Users/fionastern/Desktop/medlock-comparison-model/data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
+    --trials-fraction 0.2 \
+    --trials2 /Users/fionastern/Desktop/comp-neuro/data/Circuit_Trial_run*_data.json --trials2-label cn \
+    --autoscale --out medlock_vs_cn_frh.png
 
 
 '''
@@ -94,9 +101,9 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 2.0     # s, simulated duration (EndTime in FiringRateHist.m)
+END_TIME = 6.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
-KWID     = 10.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
+KWID     = 100.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
 # Default reference run, plotted unless --no-baseline is given. Override with
 # --baseline if the file lives somewhere else.
@@ -169,7 +176,7 @@ GROUP_ALT_POPS = {'AB': ['Ab']}
 # Groups whose spikes are summed across all cells into one combined spike
 # train (as a downstream synapse would receive them), smoothed once, and
 # reported as the TOTAL rate rather than the per-cell average.
-SUMMED_GROUPS = {'AB', 'C,TRPV1'}
+SUMMED_GROUPS = {}#'AB', 'C,TRPV1'}
 
 
 def resolve_pops(name, pops, have):
@@ -799,7 +806,7 @@ def main():
     axes[-1].set_xticks(xticks)
     axes[-1].set_xticklabels([x // 1000 for x in xticks])
     axes[-1].set_xlabel('Time (s)', fontsize=12)
-    fig.text(0.02, 0.5, 'Firing rate (spk/s)', rotation=90, va='center',
+    fig.text(0.02, 0.5, 'Average firing rate per fiber/neuron (spk/s)', rotation=90, va='center',
              fontsize=12)
     fig.subplots_adjust(left=0.15, right=0.97, top=top, bottom=0.12, hspace=0.3)
     fig.savefig(args.out, dpi=300)
