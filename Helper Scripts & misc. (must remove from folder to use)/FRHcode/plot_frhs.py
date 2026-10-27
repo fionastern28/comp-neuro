@@ -80,8 +80,23 @@ Examples
     #USE THIS ON LAPTOP
    python3 plot_frhs.py --no-baseline \
     --trials /Users/fionastern/Desktop/medlock-comparison-model/data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
-    --trials-fraction 0.2 \
     --trials2 /Users/fionastern/Desktop/comp-neuro/data/Circuit_Trial_run*_data.json --trials2-label cn \
+    --autoscale --out medlock_vs_cn_frh.png
+
+    # for use on lab computer with ORIGINAL MEDLCOK MODEL
+    python3 plot_frhs.py --no-baseline \
+    --trials /Users/fstern/Desktop/SDHmodel/data/100mN_data.json --trials-label medlock \
+    --trials2 /Users/fstern/Desktop/comp-neuro/data/Circuit_Trial_run*_data.json --trials2-label 1-compartment \
+    --autoscale --out medlock_vs_cn_frh.png
+
+        python3 plot_frhs.py --no-baseline \
+    --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+    --autoscale --out medlock_vs_cn_frh.png
+
+    #TESTING FULL MODEL COMPARISONS
+            python3 plot_frhs.py --no-baseline \
+    --trials2 /Users/fstern/Desktop/SDHmodel/data/C_ONLY/run*.json --trials2-label C-pNK1_only \
+    --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label Full-Circuit \
     --autoscale --out medlock_vs_cn_frh.png
 
 
@@ -101,7 +116,7 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 6.0     # s, simulated duration (EndTime in FiringRateHist.m)
+END_TIME = 2.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
 KWID     = 10.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
