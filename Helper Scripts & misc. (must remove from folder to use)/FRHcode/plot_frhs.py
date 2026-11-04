@@ -116,9 +116,8 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------- constants --
 
-END_TIME = 2.0     # s, simulated duration (EndTime in FiringRateHist.m)
 RES      = 0.025   # ms, sampling resolution of simData.t
-KWID     = 10.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
+KWID     = 20.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
 # Default reference run, plotted unless --no-baseline is given. Override with
 # --baseline if the file lives somewhere else.
@@ -341,8 +340,10 @@ def kernel_psth(psth, g):
                   kept), smoothed once, scaled to the TOTAL rate of all
                   cells combined.
     '''
-def compute_trace(spkt, spkid, gids, t, g, end_time=END_TIME, summed=False, fraction=1.0):
+def compute_trace(spkt, spkid, gids, t, g, summed=False, fraction=1.0):
     '''Return (trace, n_cells, mean_rate) for one group of populations.'''
+    
+    end_time = (t[-1] - t[0]) / 1000.0
     times = spkt[np.isin(spkid, gids)]
 
     counts, _ = np.histogram(np.sort(times), bins=t)
@@ -418,9 +419,6 @@ def main():
                     help='SDH-colormap.mat containing Cellcmap')
     ap.add_argument('--sigma', type=float, default=KWID,
                     help='Gaussian kernel sigma in ms (default 100)')
-    ap.add_argument('--end-time', type=float, default=END_TIME,
-                    help='simulated duration in s, used to normalise rates '
-                         '(default 5)')
     ap.add_argument('--groups', nargs='+', default=None,
                 help='space-separated group labels to plot, '
                      'e.g. AB VGLUT3 PV PKC (default: all)')
@@ -471,11 +469,6 @@ def main():
             print(str(err), file=sys.stderr)
             sys.exit(1)
 
-        span = (t[-1] - t[0]) / 1000.0          # ms -> s
-        if abs(span - args.end_time) > 1e-6:
-            print('WARNING: %s spans %.3f s but rates are normalised by '
-                  '%.3f s (see --end-time)' % (path, span, args.end_time))
-
         have = set(labels)
         missing_pops = [p for p in POP_ORDER if p not in have]
         if missing_pops:
@@ -505,11 +498,6 @@ def main():
         except RuntimeError as err:
             print(str(err), file=sys.stderr)
             sys.exit(1)
-
-        span = (t[-1] - t[0]) / 1000.0          # ms -> s
-        if abs(span - args.end_time) > 1e-6:
-            print('WARNING: %s spans %.3f s but rates are normalised by '
-                  '%.3f s (see --end-time)' % (path, span, args.end_time))
 
         have = set(labels)
         missing_pops = [p for p in POP_ORDER if p not in have]
@@ -548,11 +536,6 @@ def main():
         except RuntimeError as err:
             print(str(err), file=sys.stderr)
             sys.exit(1)
-
-        span = (t[-1] - t[0]) / 1000.0          # ms -> s
-        if abs(span - args.end_time) > 1e-6:
-            print('WARNING: %s spans %.3f s but rates are normalised by '
-                  '%.3f s (see --end-time)' % (path, span, args.end_time))
 
         have = set(labels)
         missing_pops = [p for p in POP_ORDER if p not in have]
@@ -665,7 +648,7 @@ def main():
                 continue
             gids = np.concatenate([r['gids'][p] for p in use_pops])
             trace, n_cells, mean_rate = compute_trace(
-                r['spkt'], r['spkid'], gids, r['t'], g, args.end_time, summed=(name in SUMMED_GROUPS), fraction=r['frac'])
+                r['spkt'], r['spkid'], gids, r['t'], g, summed=(name in SUMMED_GROUPS), fraction=r['frac'])
             print('%-14s %-9s %5d %12.3f %12.3f'
                   % (r['label'], name, n_cells, mean_rate, trace.max()))
 
@@ -685,7 +668,7 @@ def main():
                     continue
                 gids = np.concatenate([tr['gids'][p] for p in use_pops])
                 trace, n_cells, mean_rate = compute_trace(
-                    tr['spkt'], tr['spkid'], gids, tr['t'], g, args.end_time, summed=(name in SUMMED_GROUPS),  fraction=args.trials_fraction)
+                    tr['spkt'], tr['spkid'], gids, tr['t'], g, summed=(name in SUMMED_GROUPS),  fraction=args.trials_fraction)
                 traces.append(trace)
                 mean_rates.append(mean_rate)
 
@@ -720,7 +703,7 @@ def main():
                     continue
                 gids = np.concatenate([tr['gids'][p] for p in use_pops])
                 trace, n_cells, mean_rate = compute_trace(
-                    tr['spkt'], tr['spkid'], gids, tr['t'], g, args.end_time, summed=(name in SUMMED_GROUPS),  fraction=args.trials2_fraction)
+                    tr['spkt'], tr['spkid'], gids, tr['t'], g, summed=(name in SUMMED_GROUPS),  fraction=args.trials2_fraction)
                 traces.append(trace)
                 mean_rates.append(mean_rate)
 
