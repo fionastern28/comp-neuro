@@ -83,6 +83,11 @@ Examples
     --trials2 /Users/fionastern/Desktop/comp-neuro/data/Circuit_Trial_run*_data.json --trials2-label cn \
     --autoscale --out medlock_vs_cn_frh.png
 
+    python3 plot_frhs.py --no-baseline \
+    --trials /Users/fionastern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+    --autoscale --out medlock_vs_cn_frh.png
+
+
     # for use on lab computer with ORIGINAL MEDLCOK MODEL
     python3 plot_frhs.py --no-baseline \
     --trials /Users/fstern/Desktop/SDHmodel/data/100mN_data.json --trials-label medlock \
@@ -98,6 +103,11 @@ Examples
     --trials2 /Users/fstern/Desktop/SDHmodel/data/C_ONLY/run*.json --trials2-label C-pNK1_only \
     --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label Full-Circuit \
     --autoscale --out medlock_vs_cn_frh.png
+
+### LAPTOP - TIME WINDOW
+python3 plot_frhs.py --no-baseline \
+    --trials /Users/fionastern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+    --xlim 10000 13000 --autoscale --out window_10to13s.png
 
 
 '''
@@ -117,7 +127,7 @@ from matplotlib.lines import Line2D
 # ---------------------------------------------------------------- constants --
 
 RES      = 0.025   # ms, sampling resolution of simData.t
-KWID     = 20.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
+KWID     = 10.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
 # Default reference run, plotted unless --no-baseline is given. Override with
 # --baseline if the file lives somewhere else.
@@ -426,6 +436,8 @@ def main():
                     help='overlay all selected groups on one axes')
     ap.add_argument('--autoscale', action='store_true',
                     help='let matplotlib pick y-limits instead of the .m values')
+    ap.add_argument('--xlim', nargs=2, type=float, default=None,
+                    help='x-axis window in ms, e.g. --xlim 3000 6000')
     ap.add_argument('--out', default='fig2A_right.png')
     args = ap.parse_args()
 
@@ -804,6 +816,8 @@ def main():
     axes[-1].set_xticks(xticks)
     axes[-1].set_xticklabels([x // 1000 for x in xticks])
     axes[-1].set_xlabel('Time (s)', fontsize=12)
+    if args.xlim:
+        axes[-1].set_xlim(*args.xlim)
     fig.text(0.02, 0.5, 'Average firing rate per fiber/neuron (spk/s)', rotation=90, va='center',
              fontsize=12)
     fig.subplots_adjust(left=0.15, right=0.97, top=top, bottom=0.12, hspace=0.3)
