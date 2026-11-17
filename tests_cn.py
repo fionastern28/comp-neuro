@@ -78,7 +78,7 @@ for run in range(nRuns):
 
     
     from neuron import h
-    pv = next(c for c in sim.net.cells if c.tags.get('pop') == 'PV')
+    pv = next(c for c in sim.net.cells if c.tags.get('pop') == 'DYN')
     cap = pv.secs['soma']['pointps']['ExcCap']['hObj']
     rec_itot  = h.Vector().record(cap._ref_itotal)
     rec_icorr = h.Vector().record(cap._ref_icorrect)

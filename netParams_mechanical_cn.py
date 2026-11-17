@@ -129,13 +129,13 @@ spkt_Ab_PV = make_poisson_pop(rate=500, n_cells=10, t_start=0, t_stop=cfg.durati
 
 
 netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': 10, 'spkTimes': spkt_Ab}
-netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': _nAb, 'spkTimes': spkt_Ab_PV}
+netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells':10, 'spkTimes': spkt_Ab_PV}
 netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
-netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
+#netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
 #netParams.popParams['PKC'] = {'cellType': 'EXdl', 'numCells': 1}
 #netParams.popParams['NK1'] = {'cellType': 'PRO', 'numCells': 1} # NK1+ neurons (projection)
-#netParams.popParams['DYN'] = {'cellType': 'IN', 'numCells': 1} # Central/DYN+ neurons (inhibitory)
+netParams.popParams['DYN'] = {'cellType': 'IN', 'numCells': 1} # Central/DYN+ neurons (inhibitory)
 
 
 
