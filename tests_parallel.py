@@ -22,7 +22,7 @@ from collections import defaultdict
 import numpy as np
 
 nRuns = 20
-SIM_DURATION = 3000  # ms
+SIM_DURATION = 1000  # ms
 SIM_DURATION_sec = SIM_DURATION / 1000.0
 INPUT_RATE = 10
 
@@ -48,6 +48,7 @@ def run_one(run):
     importlib.reload(npmod)
 
     sim.create(netParams=npmod.netParams, simConfig=cfg)
+
 
     # --- wire ExcCap pointers on PV/VGLUT3/PKC/DYN cells (same as tests_cn.py) ---
     for cell in sim.net.cells:

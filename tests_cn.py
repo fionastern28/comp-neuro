@@ -25,8 +25,8 @@ from spkt_gen_cn import generate_new_SPKT
 import importlib
 
 
-nRuns = 20
-SIM_DURATION = 6000  # ms
+nRuns = 1
+SIM_DURATION = 1000  # ms
 SIM_DURATION_sec = SIM_DURATION / 1000.0
 INPUT_RATE = 10
 
@@ -76,7 +76,38 @@ for run in range(nRuns):
             h.setpointer(excCap._ref_iacc_nmda, 'iacc', syn['hObj'])
     # --- end wiring ---
 
+    
+    from neuron import h
+    pv = next(c for c in sim.net.cells if c.tags.get('pop') == 'PV')
+    cap = pv.secs['soma']['pointps']['ExcCap']['hObj']
+    rec_itot  = h.Vector().record(cap._ref_itotal)
+    rec_icorr = h.Vector().record(cap._ref_icorrect)
+    soma = pv.secs['soma']['hObj']
+    rec_v = h.Vector().record(soma(0.5)._ref_v)
+    rec_t = h.Vector().record(h._ref_t)
+        
+    
     sim.simulate()
+
+
+    import numpy as np
+    it, ic = np.array(rec_itot), np.array(rec_icorr)
+    print("itotal  min / mean:", it.min(), it.mean())
+    print("icorrect max / mean:", ic.max(), ic.mean())
+    print("fraction of time cap active:", (ic > 0).mean())
+    print("cvode active:", h.CVode().active())
+    v, t = np.array(rec_v), np.array(rec_t)
+    print("dt:", h.dt, " soma diam/L:", soma.diam, soma.L)
+    print("v min / max:", v.min(), v.max())
+    print("PV conns:", [(c['synMech'], c['weight']) for c in pv.conns])
+    bad = np.where(np.abs(v) > 200)[0]
+    if bad.size:
+        k = bad[0]
+        print("first blow-up at t =", t[k], "ms")
+        for j in range(max(0, k - 10), k + 3):
+            print(f"t={t[j]:.3f}  v={v[j]:9.1f}  itotal={it[j]:9.3f}  icorrect={ic[j]:9.3f}")
+
+
     sim.analyze()
 
     all_gids = [c.gid for c in sim.net.cells]

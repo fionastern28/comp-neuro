@@ -9,7 +9,7 @@ cfg = specs.SimConfig()
 
 cfg.hParams = {'celsius': 36, 'v_init': -60}
 cfg.vrest = cfg.hParams['v_init']
-cfg.duration = 3000
+cfg.duration = 1000
 
 cfg.recordStep = 0.025#25#0.025
 cfg.dt = 0.025
@@ -35,6 +35,7 @@ SYN_CAP_IN = 0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current 
 C_NK1_SCALE = 1.3
 
 C_DYN_SCALE = .0016
+AB_DYN_SCALE = .2
 # SYNAPTIC WEIGHT
 
 ## new c -> PKC connection weights
@@ -53,7 +54,7 @@ cfg.C_NK1_AMPA = 0.00009    * C_NK1_SCALE
 cfg.C_NK1_NMDA = 8.7447e-05 * C_NK1_SCALE
 cfg.C_NK1_NK1 = 3.2414e-08  * C_NK1_SCALE
 
-cfg.Ab_DYN_AMPA = 0.00208312 * .005
+cfg.Ab_DYN_AMPA = 0.00208312 * AB_DYN_SCALE
 
 cfg.C_DYN_AMPA = 0.184135 * C_DYN_SCALE
 

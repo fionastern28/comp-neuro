@@ -22,53 +22,6 @@ refuses to guess and errors out instead.
 
 Examples
 --------
-    # baseline alone, all 14 traces in 4 panels
-    python3 plot_frh.py --cmap SDH-colormap.mat
-
-    # one comparison against the baseline: baseline solid, 10mN dashed
-    python3 plot_frh.py --data data/10mN_data.json \
-        --cmap SDH-colormap.mat --groups AB,VGLUT3,PV,PKC
-
-    # two comparisons with explicit legend labels, all on one axes
-    python3 plot_frh.py --data data/10mN_data.json data/50mN_data.json \
-        --labels 10mN 50mN --groups NK1 --single-panel --autoscale
-
-    # different baseline, or none at all
-    python3 plot_frh.py --baseline data/50mN_data.json --data data/10mN_data.json
-    python3 plot_frh.py --no-baseline --data data/10mN_data.json data/50mN_data.json
-
-    python3 plot_frhs.py --baseline data/Circuit_Trial_Medlock_data.json --data Circuit_Trial_data.json
-
-    #update
-    python3 plot_frhs.py --data data/Circuit_Trial_data.json --groups AB,VGLUT3,PV
-    python3 plot_frhs.py --data data/Circuit_Trial_run0_data.json --groups AB,PV,PKC,VGLUT3 --autoscale
-    python3 plot_frhs.py --data data/Circuit_Trial_data.json --groups PKC,AB,VGLUT3
-    python3 plot_frhs.py  --groups AB,PV,PKC,VGLUT3 --autoscale
-
-    python3 plot_frhs.py  --groups AB,PKC --autoscale --data data/Circuit_Trial_Medlock_data.json
-
-    # repeated trials of one condition: mean trace +/- SD shading, vs. baseline
-    python3 plot_frhs.py --trials data/Circuit_Trial_run*.json  --groups AB,VGLUT3,PV,PKC --autoscale
-
-    # two conditions (e.g. medlock vs cn), each as its own mean +/- SD band,
-    # overlaid on the same axes, no baseline
-    python3 plot_frhs.py --no-baseline \
-        --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
-        --trials2 data/Circuit_Trial_run*_data.json --trials2-label cn \
-        --groups C,TRPV1 PKC AB PV --autoscale --out medlock_vs_cn_frh.png
-
-        python3 plot_frhs.py --no-baseline --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock --groups AB,PKC,C,TRPV1 --autoscale --out medlock_vs_cn_frh.png
-
-        python3 plot_frhs.py --no-baseline --data data/Circuit_Trial_Medlock_run0_data.json --autoscale
-
-        python3 plot_frhs.py --no-baseline --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock --groups AB PKC C,TRPV1 --autoscale --out prezzy.png
-
-    python3 plot_frhs.py --no-baseline \
-        --trials data/Circuit_Trial_Medlock_run*_data.json --trials-label medlock \
-        --trials2 data/Circuit_Trial_run*_data.json --trials2-label cn \
-        --autoscale --out medlock_vs_cn_frh.png
-
-    UPDATE 10/8/26 FOR SUMMING OF AFFERENT FIBERS AND FRACTION FOR MEDLOCK AFFERENTS
     
     # USE THIS ONE LAB COMPUTER
     python3 plot_frhs.py --no-baseline \
@@ -104,6 +57,10 @@ Examples
     --trials2 /Users/fstern/Desktop/comp-neuro/data/Circuit_Trial_run*.json --trials2-label 1-compartment \
     --autoscale --out medlock_vs_cn_frh.png
 
+                python3 plot_frhs.py --no-baseline \
+    --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+        --autoscale --out medlock_vs_cn_frh.png
+
 ### LAPTOP - TIME WINDOW
 python3 plot_frhs.py --no-baseline \
     --trials /Users/fionastern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
@@ -132,7 +89,7 @@ from matplotlib.lines import Line2D
 # ---------------------------------------------------------------- constants --
 
 RES      = 0.025   # ms, sampling resolution of simData.t
-KWID     = 30.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
+KWID     =30.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
 # Default reference run, plotted unless --no-baseline is given. Override with
 # --baseline if the file lives somewhere else.
@@ -363,11 +320,9 @@ def compute_trace(spkt, spkid, gids, t, g, summed=False, fraction=1.0):
 
     counts, _ = np.histogram(np.sort(times), bins=t)
     
-    if summed:
-        psth = counts.astype(float)                # keep every spike
-    else:
-        psth = (counts > 0).astype(float)          # PSTH_.m binarisation
-
+    psth = counts.astype(float)                # keep every spike
+   # psth = (counts > 0).astype(float)          # bin spikes together
+    
     k = kernel_psth(psth, g)
     k[np.isnan(k)] = 0.0
 
