@@ -91,7 +91,9 @@ BREAKPOINT {
 : runs exactly once per accepted timestep (see revision note above) -- safe
 : place to push into the shared accumulator without double-counting
 AFTER SOLVE {
-	iacc = iacc + i
+	if (nrn_pointing(iacc)) {   : only push if wired to an ExcCap
+		iacc = iacc + i
+	}
 }
 
 DERIVATIVE state{

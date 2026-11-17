@@ -38,13 +38,15 @@ from neuron import h
 # ===========================================================================
 # CONFIG -- edit per project
 # ===========================================================================
-MODEL_LABEL       = '1-compartment'                 # legend text; must be unique
+MODEL_LABEL       = '1-compartment_NK1'             # legend text; must be unique
+N_C_FIBERS        = 50    # C fibers in the sweep (keep same in both models)
+N_NK1             = 1     # NK1 cells in the sweep
 NETPARAMS_MODULE  = 'netParams_mechanical_cn'    # module basename, no .py
 CFG_MODULE        = 'cfg_mechanical_cn'          # module basename, no .py
-TARGET_POP        = 'PV'                     # population to measure
+TARGET_POP        = 'NK1'                     # population to measure
 
 # keep these IDENTICAL across the models you intend to compare
-INPUT_RATES = [1, 3, 5, 7, 9, 12, 15, 20]#, 25, 30, 35, 40, 45, 50]#, 55, 60, 65, 70]  # Hz per afferent
+INPUT_RATES = [1, 3, 5, 7, 9, 12, 15, 20, 25, 30, 35, 40, 45, 50]#, 25, 30, 35, 40, 45, 50]#, 55, 60, 65, 70]  # Hz per afferent
 SEEDS       = [1056, 3008, 5200, 601]  # RNG seeds for Poisson trains
 DURATION    = 2000.0    # ms per run
 TRANSIENT   = 500.0     # ms discarded at the start of each run
@@ -105,17 +107,16 @@ def run_one(input_rate, seed):
     npmod = importlib.import_module(NETPARAMS_MODULE)
     importlib.reload(npmod)
 
-    npmod = importlib.import_module(NETPARAMS_MODULE)
-    importlib.reload(npmod)
-
-    # Sweep network = Ab_PV -> PV only, regardless of which pops are
-    # currently enabled in netParams. spkt_Ab is built from cfg.inputRate.
+    # Sweep network = C_PEP -> NK1 only, regardless of which pops are
+    # currently enabled in netParams. C trains drawn at the sweep rate/seed
+    # (seed + i per fiber), so both models see identical input.
+    spkt_C = npmod.make_poisson_pop(cfg.inputRate, N_C_FIBERS, 0, cfg.duration, seed)
     netParams = npmod.netParams
     for pop in list(netParams.popParams.keys()):
         del netParams.popParams[pop]
-    netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells': cfg.numAb,
-                                    'spkTimes': npmod.spkt_Ab}
-    netParams.popParams['PV']    = {'cellType': 'IN', 'numCells': 1}
+    netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': N_C_FIBERS,
+                                    'spkTimes': spkt_C}
+    netParams.popParams['NK1']   = {'cellType': 'PRO', 'numCells': N_NK1}
 
     # replaced sim.createSimulate(netParams=npmod.netParams, simConfig=cfg)
     #POSSIBLY TEMPORARY CHANGES TO IMPOSE SYNAPTIC LIMIT ON PV CELLS
@@ -145,7 +146,7 @@ def run_one(input_rate, seed):
 
     sim.simulate()    
     rate = measure_pop_rate(TARGET_POP, TRANSIENT, DURATION)
-    n_ab = getattr(cfg, 'numAb', 4)
+    n_ab = N_C_FIBERS  # number of C fibers (kept in 'num_ab' column for the plotter)
     sim.analyze()
     sim.clearAll()
         

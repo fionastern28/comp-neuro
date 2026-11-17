@@ -100,13 +100,18 @@ Examples
 
     #TESTING FULL MODEL COMPARISONS
             python3 plot_frhs.py --no-baseline \
-    --trials2 /Users/fstern/Desktop/SDHmodel/data/C_ONLY/run*.json --trials2-label C-pNK1_only \
-    --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label Full-Circuit \
+    --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+    --trials2 /Users/fstern/Desktop/comp-neuro/data/Circuit_Trial_run*.json --trials2-label 1-compartment \
     --autoscale --out medlock_vs_cn_frh.png
 
 ### LAPTOP - TIME WINDOW
 python3 plot_frhs.py --no-baseline \
     --trials /Users/fionastern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+    --xlim 10000 13000 --autoscale --out window_10to13s.png
+
+## LAB - TIME WINDOW
+python3 plot_frhs.py --no-baseline \
+    --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
     --xlim 10000 13000 --autoscale --out window_10to13s.png
 
 
@@ -127,7 +132,7 @@ from matplotlib.lines import Line2D
 # ---------------------------------------------------------------- constants --
 
 RES      = 0.025   # ms, sampling resolution of simData.t
-KWID     = 10.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
+KWID     = 30.0   # ms, Gaussian kernel sigma (kWid in FiringRateHist.m)
 
 # Default reference run, plotted unless --no-baseline is given. Override with
 # --baseline if the file lives somewhere else.

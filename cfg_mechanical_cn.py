@@ -9,7 +9,7 @@ cfg = specs.SimConfig()
 
 cfg.hParams = {'celsius': 36, 'v_init': -60}
 cfg.vrest = cfg.hParams['v_init']
-cfg.duration = 6000
+cfg.duration = 3000
 
 cfg.recordStep = 0.025#25#0.025
 cfg.dt = 0.025
@@ -32,6 +32,9 @@ PV_PKC_SCALE = 0.022#0.024 #0.03  #  PV -> PKC synaptic weights
 SYN_CAP_EX = 0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 SYN_CAP_IN = 0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 
+C_NK1_SCALE = 1.3
+
+C_DYN_SCALE = .0016
 # SYNAPTIC WEIGHT
 
 ## new c -> PKC connection weights
@@ -39,16 +42,20 @@ cfg.C_PKC_AMPA = 0.00067115 * 3 # 0.00067115 * 3 = 0.00201345
 cfg.C_PKC_NMDA = 0.000407345 * 3 # 0.000407345 * 3 = 0.001222035
 
 cfg.Ab_EX_AMPA = 0.0221559 * EX_SCALE        #0.005871 # = 0.0221559 *.265
-cfg.Ab_EX_NMDA = 0.015 * EX_SCALE            #0.003975 # = 0.015 * .265
+cfg.Ab_EX_NMDA = 0.015     * EX_SCALE            #0.003975 # = 0.015 * .265
 cfg.Ab_IN_AMPA = 0.00208312 * IN_SCALE       # 0.00208312 * .5 = 0.00104156
 cfg.Ab_IN_NMDA = 0.0098189  * IN_SCALE       # 0.0098189  * .5 = 0.00490945
 
-cfg.PV_GABA = 0.29416 * PV_PKC_SCALE # 0.29416 * 0.024 = 0.00705984
+cfg.PV_GABA = 0.29416  * PV_PKC_SCALE # 0.29416 * 0.024 = 0.00705984
 cfg.PV_GLY =  0.011521 * PV_PKC_SCALE  # 0.011521 * 0.024 = 0.000276504  
 
-cfg.C_NK1_AMPA = 0.00009 
-cfg.C_NK1_NMDA = 8.7447e-05 
-cfg.C_NK1_NK1 = 3.2414e-08 
+cfg.C_NK1_AMPA = 0.00009    * C_NK1_SCALE
+cfg.C_NK1_NMDA = 8.7447e-05 * C_NK1_SCALE
+cfg.C_NK1_NK1 = 3.2414e-08  * C_NK1_SCALE
+
+cfg.Ab_DYN_AMPA = 0.00208312 * .005
+
+cfg.C_DYN_AMPA = 0.184135 * C_DYN_SCALE
 
 cfg.recordTraces['v_soma'] = {'sec': 'soma', 'loc': 0.5, 'var': 'v'}
 

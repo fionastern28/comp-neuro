@@ -14,6 +14,8 @@ arm64/
 # Simulation output
 data/
 Helper Scripts & misc. (must remove from folder to use)/FRHcode/data/
+logs/
+*.txt
 
 # Generated plots
 *.png
