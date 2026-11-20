@@ -29,8 +29,8 @@ EX_SCALE = 0.195 #0.23       #  Ab -> Ex synaptic weights
 IN_SCALE = 0.6        #  Ab -> IN synaptic weights
 PV_PKC_SCALE = 0.022#0.024 #0.03  #  PV -> PKC synaptic weights
 
-SYN_CAP_EX = 0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
-SYN_CAP_IN = 0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
+SYN_CAP_EX = 1e9#0.29       # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
+SYN_CAP_IN = 1e9#0.042      # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 
 C_NK1_SCALE = 1.3
 
@@ -64,6 +64,18 @@ cfg.recordTraces['v_soma'] = {'sec': 'soma', 'loc': 0.5, 'var': 'v'}
 cfg.excCapEX = SYN_CAP_EX  # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 cfg.excCapIN = SYN_CAP_IN  # nA, max allowed inward (excitatory) AMPA+NMDA current on PV cells
 
+# IMPOSES LIMIT ON INDIVIDUAL SYNPATIC CONDUCTANCES
+# Per-cell synaptic conductance budgets (uS), split across that cell's synapses.
+# Populations not listed here are uncapped.
+cfg.synCaps = {
+    'DYN':  {'AMPA_DynSyn': .0011, 'NMDA_DynSyn': .0011},
+    'PV':  {'AMPA_DynSyn': .0009, 'NMDA_DynSyn': .0009},
+    'PKC': {'AMPA_DynSyn': 0.006, 'NMDA_DynSyn': 0.006},
+    'SOM': {'AMPA_DynSyn': 0.001, 'NMDA_DynSyn': 0.01},
+    # 'VGLUT3': {...},
+}
+cfg.synCapSplit = 'equal'   # 'equal' (G/N) or 'weight' (G * w / sum w)
+
 
 #cfg.recordTraces['exc_itotal'] = {'sec':'soma', 'loc':0.5, 'pointp':'ExcCap', 'var':'itotal'}
 #cfg.recordTraces['exc_icorrect'] = {'sec':'soma', 'loc':0.5, 'pointp':'ExcCap', 'var':'icorrect'}
@@ -84,5 +96,5 @@ cfg.analysis['plotRaster'] = {'include': ['all'], 'timeRange': [0, cfg.duration]
 #cfg.analysis['plotConn'] = {'includePre': ['all'], 'includePost': ['all'], 'feature': 'weight','logPlot': True, 'saveFig': True, 'showFig': True}
 # cfg.analysis['plotSpikeHist'] = {'include': ['eachPop'], 'timeRange': [0,cfg.duration], 'spikeHistBin': 5, 'saveFig': True, 'showFig': False}
 #cfg.analysis['plotSpikeStats'] = {'include': ['eachPop'], 'timeRange': [0,cfg.duration], 'saveFig': True, 'showFig': False}
-cfg.analysis['plotTraces'] = {'include': [36], 'timeRange': [0, cfg.duration], 'saveFig': True, 'showFig': False}
+cfg.analysis['plotTraces'] = {'include': [24], 'timeRange': [0, cfg.duration], 'saveFig': True, 'showFig': False}
 #cfg.analysis['plot2Dnet'] = True 

@@ -18,6 +18,7 @@ import argparse
 import multiprocessing as mp
 import sys
 from collections import defaultdict
+from syn_caps import apply_syn_caps
 
 import numpy as np
 
@@ -42,26 +43,14 @@ def run_one(run):
     cfg.inputRate = float(INPUT_RATE)
     cfg.spktSeed = 1703 + 10 * run
     cfg.duration = SIM_DURATION
-    cfg.simLabel = f"Circuit_Trial_run{run}"
+    cfg.simLabel = f"run{run}"
 
     npmod = importlib.import_module('netParams_mechanical_cn')
     importlib.reload(npmod)
 
     sim.create(netParams=npmod.netParams, simConfig=cfg)
-
-
-    # --- wire ExcCap pointers on PV/VGLUT3/PKC/DYN cells (same as tests_cn.py) ---
-    for cell in sim.net.cells:
-        if cell.tags.get('pop') not in ('PV', 'VGLUT3', 'PKC', 'DYN'):
-            continue
-        excCap = cell.secs['soma']['pointps']['ExcCap']['hObj']
-        for sm in cell.secs['soma']['synMechs']:
-            if sm['label'] == 'AMPA':
-                h.setpointer(excCap._ref_iacc_ampa, 'iacc', sm['hObj'])
-            elif sm['label'] == 'NMDA':
-                h.setpointer(excCap._ref_iacc_nmda, 'iacc', sm['hObj'])
-    # --- end wiring ---
-
+    caps = apply_syn_caps(sim, cfg)
+    print(caps)
     sim.simulate()
     sim.analyze()
 

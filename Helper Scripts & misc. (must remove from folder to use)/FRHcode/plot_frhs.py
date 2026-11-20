@@ -37,7 +37,7 @@ Examples
     --autoscale --out medlock_vs_cn_frh.png
 
     python3 plot_frhs.py --no-baseline \
-    --trials /Users/fionastern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+    --trials /Users/fstern/Desktop/comp-neuro/data/run*.json --trials-label 1-comp \
     --autoscale --out medlock_vs_cn_frh.png
 
 
@@ -54,11 +54,15 @@ Examples
     #TESTING FULL MODEL COMPARISONS
             python3 plot_frhs.py --no-baseline \
     --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
-    --trials2 /Users/fstern/Desktop/comp-neuro/data/Circuit_Trial_run*.json --trials2-label 1-compartment \
+    --trials2 /Users/fstern/Desktop/comp-neuro/data/run*.json --trials2-label 1-compartment \
     --autoscale --out medlock_vs_cn_frh.png
 
                 python3 plot_frhs.py --no-baseline \
     --trials /Users/fstern/Desktop/SDHmodel/data/run*.json --trials-label medlock \
+        --autoscale --out medlock_vs_cn_frh.png
+
+         python3 plot_frhs.py --no-baseline \
+    --trials /Users/fstern/Desktop/comp-neuro/data/run*.json --trials-label medlock \
         --autoscale --out medlock_vs_cn_frh.png
 
 ### LAPTOP - TIME WINDOW

@@ -92,17 +92,8 @@ else:
 
 # moves dictionary from independent script into netParams
 netParams.cellParams['EXdelayedRule'] = cells_cn.EXdelayedRule
-netParams.cellParams['EXdelayedRule']['secs']['soma'].setdefault('pointps', {})
-netParams.cellParams['EXdelayedRule']['secs']['soma']['pointps']['ExcCap'] = {
-    'mod': 'ExcCap',
-    'cap': cfg.excCapEX
-}
 netParams.cellParams['INcellRule'] = cells_cn.INcellRule
-netParams.cellParams['INcellRule']['secs']['soma'].setdefault('pointps', {})
-netParams.cellParams['INcellRule']['secs']['soma']['pointps']['ExcCap'] = {
-    'mod': 'ExcCap',
-    'cap': cfg.excCapIN
-}
+
 cells_cn.PROcellRule['conds'] = {'cellType': 'PRO'}
 netParams.cellParams['NK1Rule'] = cells_cn.PROcellRule
 
@@ -128,8 +119,8 @@ spkt_Ab = make_poisson_pop(rate=500, n_cells=10, t_start=0, t_stop=cfg.duration,
 spkt_Ab_PV = make_poisson_pop(rate=500, n_cells=10, t_start=0, t_stop=cfg.duration, seed_base=_seed*31)
 
 
-netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': 10, 'spkTimes': spkt_Ab}
-netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells':10, 'spkTimes': spkt_Ab_PV}
+netParams.popParams['Ab'] = {'cellModel': 'VecStim', 'numCells': 4, 'spkTimes': spkt_Ab}
+netParams.popParams['Ab_PV'] = {'cellModel': 'VecStim', 'numCells':4, 'spkTimes': spkt_Ab_PV}
 netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C}
 #netParams.popParams['C_PEP'] = {'cellModel': 'VecStim', 'numCells': NUM_C_FIBERS, 'spkTimes': spkt_C_pulse}
 #netParams.popParams['PV'] = {'cellType': 'IN', 'numCells': 1} # PV+ neurons (inhibitory)
@@ -142,7 +133,12 @@ netParams.popParams['DYN'] = {'cellType': 'IN', 'numCells': 1} # Central/DYN+ ne
 netParams.defaultThreshold = -30
 
 netParams.synMechParams['AMPA'] = {'mod': 'AMPA_DynSyn'   , 'tau_rise': 0.1, 'tau_decay': 5            }
+#netParams.synMechParams['AMPA_IN'] = {'mod': 'AMPA_DynSyn_IN'   , 'tau_rise': 0.1, 'tau_decay': 5, 'gmax': cfg.gmaxAMPA_IN}
+#netParams.synMechParams['AMPA_EX'] = {'mod': 'AMPA_DynSyn_EX'   , 'tau_rise': 0.1, 'tau_decay': 5,  'gmax': cfg.gmaxAMPA_EX}
 netParams.synMechParams['NMDA'] = {'mod': 'NMDA_DynSyn'   , 'tau_rise': 2  , 'tau_decay': 100          }
+#netParams.synMechParams['NMDA_IN'] = {'mod': 'NMDA_DynSyn'   , 'tau_rise': 2  , 'tau_decay': 100,  'gmax': cfg.gmaxAMPA_IN}
+#netParams.synMechParams['NMDA_EX'] = {'mod': 'NMDA_DynSyn'   , 'tau_rise': 2  , 'tau_decay': 100,  'gmax': cfg.gmaxNMDA_EX}
+
 netParams.synMechParams['GABA'] = {'mod': 'GABAa_DynSyn'  , 'tau_rise': 0.1, 'tau_decay': 20, 'e': -70 }
 netParams.synMechParams['GLY']  = {'mod': 'Glycine_DynSyn', 'tau_rise': 0.1, 'tau_decay': 10, 'e': -70 }
 netParams.synMechParams['NK13'] = {'mod': 'NK1_DynSyn'    , 'tau_rise': 100, 'tau_decay': 1000         }

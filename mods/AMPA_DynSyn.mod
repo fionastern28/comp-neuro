@@ -11,28 +11,11 @@ ENDCOMMENT
 
 
 
-: ===========================================================================
-: EDITED by Claude (Cowork) on 2026-08-07 21:31 EDT (revised 21:52 EDT)
-: PURPOSE: Added POINTER iacc so this synapse can push its own current into
-: the shared ExcCap accumulator (iacc_ampa) each timestep, replacing the old
-: scheme where ExcCap pulled from a fixed 20-slot array of pointers. See
-: SynCurrentCap.mod for the accumulator side of this change.
-: REVISION NOTE: the push (iacc = iacc + i) originally lived inside
-: BREAKPOINT, but testing showed NEURON evaluates BREAKPOINT twice per
-: timestep for mechanisms with a NONSPECIFIC_CURRENT and no declared
-: analytic conductance (once at v, once at a perturbed v, to build the
-: implicit integration Jacobian) -- which silently double-counted every
-: push. Moved to AFTER SOLVE, which NEURON guarantees runs exactly once
-: per accepted timestep, after v is finalized, using the same 'i' that's
-: normally trusted for recording/plotting synaptic current traces.
-: ===========================================================================
-
 NEURON {
-	POINT_PROCESS AMPA_DynSyn
+	POINT_PROCESS AMPA_DynSyn	
 	RANGE tau_rise, tau_decay
 	RANGE U1, tau_rec, tau_fac
-	RANGE i, g, e
-	POINTER iacc
+	RANGE i, g, e, gmax
 	NONSPECIFIC_CURRENT i
 }
 
@@ -43,6 +26,7 @@ PARAMETER {
 	tau_rec   = 0.1   (ms)  : the pre-synaptic short-term plasticity _
 	tau_fac   = 0.1   (ms)  : mechanism (see Fuhrmann et al, 2002)
 	e         = 0.0   (mV)  : AMPA synapse reversal potential
+	gmax = 1e9 	  (umho): per-synapse conductance cap; 1e9 = no cap
 }
      
 
@@ -51,7 +35,6 @@ ASSIGNED {
 	i (nA)
 	g (umho)
 	factor
-	iacc (nA)  : ExcCap's iacc_ampa accumulator, wired via h.setpointer (added 2026-08-07)
 }
 
 STATE {
@@ -71,15 +54,8 @@ INITIAL{
 BREAKPOINT {
 	SOLVE state METHOD cnexp
 	g = B-A
+	if (g > gmax) { g = gmax}
 	i = g*(v-e)
-}
-
-: runs exactly once per accepted timestep (see revision note above) -- safe
-: place to push into the shared accumulator without double-counting
-AFTER SOLVE {
-	if (nrn_pointing(iacc)) {   : only push if wired to an ExcCap
-		iacc = iacc + i
-	}
 }
 
 DERIVATIVE state{

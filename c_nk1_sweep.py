@@ -54,9 +54,6 @@ import sys
 
 DEFAULT_RATES = [0, 1, 2, 5, 7, 10, 12, 15, 17, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90]   # Hz
 
-# pops whose AMPA/NMDA synapses report to an ExcCap point process
-EXCCAP_POPS = ('PV', 'VGLUT3', 'PKC', 'DYN')
-
 # make the model folder (cwd) importable
 sys.path.insert(0, os.getcwd())
 
@@ -106,23 +103,6 @@ def poisson_trains(rate, n_cells, t_stop, seed_base):
 
 def pop_of(conds):
     return conds.get("popLabel", conds.get("pop"))
-
-
-def wire_exccap(sim, h):
-    """Point each AMPA/NMDA synapse at its cell's ExcCap accumulator (same as tests_cn.py).
-    NK1 (PROcellRule) has no ExcCap, so it is skipped."""
-    for cell in sim.net.cells:
-        if cell.tags.get('pop') not in EXCCAP_POPS:
-            continue
-        pointps = cell.secs['soma'].get('pointps', {})
-        if 'ExcCap' not in pointps:
-            continue
-        excCap = pointps['ExcCap']['hObj']
-        for sm in cell.secs['soma']['synMechs']:
-            if sm['label'] == 'AMPA':
-                h.setpointer(excCap._ref_iacc_ampa, 'iacc', sm['hObj'])
-            elif sm['label'] == 'NMDA':
-                h.setpointer(excCap._ref_iacc_nmda, 'iacc', sm['hObj'])
 
 
 def run_one(a, rate, trial):
@@ -179,7 +159,6 @@ def run_one(a, rate, trial):
     cfg.verbose = False
 
     sim.create(netParams=netParams, simConfig=cfg)
-    wire_exccap(sim, h)
     sim.simulate()
     sim.analyze()
 

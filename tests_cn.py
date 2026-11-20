@@ -23,6 +23,8 @@ import numpy as np
 from netpyne import sim
 from spkt_gen_cn import generate_new_SPKT
 import importlib
+from syn_caps import apply_syn_caps
+
 
 
 nRuns = 1
@@ -42,7 +44,7 @@ for run in range(nRuns):
     cfg.inputRate = float(INPUT_RATE)
     cfg.spktSeed = 1703 + 10 * run
     cfg.duration = SIM_DURATION
-    cfg.simLabel = f"Circuit_Trial_run{run}"
+    cfg.simLabel = f"run{run}"
 
     npmod = importlib.import_module('netParams_mechanical_cn')
     importlib.reload(npmod)
@@ -54,58 +56,17 @@ for run in range(nRuns):
     from neuron import h
 
     sim.create(netParams=npmod.netParams, simConfig=cfg)
+    apply_syn_caps(sim, cfg)
 
-    # --- wire ExcCap pointers on PV/VGLUT3/PKC cells ---
-    # EDITED by Claude (Cowork) on 2026-08-07 21:31 EDT
-    # PURPOSE: ExcCap now uses a push-accumulator design (see SynCurrentCap.mod)
-    # instead of a fixed 20-slot pointer array, so there's no MAX_SLOTS limit,
-    # no zero-padding of unused slots, and no assert needed -- just one
-    # setpointer call per synapse, pointing it at ExcCap's iacc_ampa/iacc_nmda.
-    for cell in sim.net.cells:
-        if cell.tags.get('pop') not in ('PV', 'VGLUT3', 'PKC', 'DYN'):
-            continue
+    pv = next(c for c in sim.net.cells if c.tags.get('pop') == 'PV')
+    amp_vecs  = [h.Vector().record(sm['hObj']._ref_i) for sm in pv.secs['soma']['synMechs'] if sm['label'] == 'AMPA']
+    nmda_vecs = [h.Vector().record(sm['hObj']._ref_i) for sm in pv.secs['soma']['synMechs'] if sm['label'] == 'NMDA']
 
-        excCap = cell.secs['soma']['pointps']['ExcCap']['hObj']
-
-        ampaSyns = [sm for sm in cell.secs['soma']['synMechs'] if sm['label'] == 'AMPA']
-        nmdaSyns = [sm for sm in cell.secs['soma']['synMechs'] if sm['label'] == 'NMDA']
-
-        for syn in ampaSyns:
-            h.setpointer(excCap._ref_iacc_ampa, 'iacc', syn['hObj'])
-        for syn in nmdaSyns:
-            h.setpointer(excCap._ref_iacc_nmda, 'iacc', syn['hObj'])
-    # --- end wiring ---
-
-    
-    from neuron import h
-    pv = next(c for c in sim.net.cells if c.tags.get('pop') == 'DYN')
-    cap = pv.secs['soma']['pointps']['ExcCap']['hObj']
-    rec_itot  = h.Vector().record(cap._ref_itotal)
-    rec_icorr = h.Vector().record(cap._ref_icorrect)
-    soma = pv.secs['soma']['hObj']
-    rec_v = h.Vector().record(soma(0.5)._ref_v)
-    rec_t = h.Vector().record(h._ref_t)
-        
-    
     sim.simulate()
 
-
-    import numpy as np
-    it, ic = np.array(rec_itot), np.array(rec_icorr)
-    print("itotal  min / mean:", it.min(), it.mean())
-    print("icorrect max / mean:", ic.max(), ic.mean())
-    print("fraction of time cap active:", (ic > 0).mean())
-    print("cvode active:", h.CVode().active())
-    v, t = np.array(rec_v), np.array(rec_t)
-    print("dt:", h.dt, " soma diam/L:", soma.diam, soma.L)
-    print("v min / max:", v.min(), v.max())
-    print("PV conns:", [(c['synMech'], c['weight']) for c in pv.conns])
-    bad = np.where(np.abs(v) > 200)[0]
-    if bad.size:
-        k = bad[0]
-        print("first blow-up at t =", t[k], "ms")
-        for j in range(max(0, k - 10), k + 3):
-            print(f"t={t[j]:.3f}  v={v[j]:9.1f}  itotal={it[j]:9.3f}  icorrect={ic[j]:9.3f}")
+    i_ampa = np.sum([np.array(v) for v in amp_vecs], axis=0)
+    i_nmda = np.sum([np.array(v) for v in nmda_vecs], axis=0)
+    print("mean AMPA / NMDA current (nA):", i_ampa.mean(), i_nmda.mean())
 
 
     sim.analyze()
